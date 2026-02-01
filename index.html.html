@@ -1,0 +1,4357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#4f46e5">
+  <title>BCBA Caseload</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; }
+    body { overscroll-behavior-y: contain; }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script type="text/babel">
+// Simple Icon Components (inline SVG - no external dependencies)
+const Icon = ({ d, size = 24, className = "" }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    <path d={d} />
+  </svg>
+);
+
+// Icon paths from Lucide
+const Icons = {
+  User: (props) => <Icon {...props} d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2M12 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8z" />,
+  Plus: (props) => <Icon {...props} d="M12 5v14M5 12h14" />,
+  MapPin: (props) => <Icon {...props} d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0zM12 7a3 3 0 1 0 0 6 3 3 0 0 0 0-6z" />,
+  Phone: (props) => <Icon {...props} d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z" />,
+  Mail: (props) => <Icon {...props} d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2zM22 6l-10 7L2 6" />,
+  ChevronRight: (props) => <Icon {...props} d="M9 18l6-6-6-6" />,
+  ChevronLeft: (props) => <Icon {...props} d="M15 18l-6-6 6-6" />,
+  ArrowLeft: (props) => <Icon {...props} d="M19 12H5M12 19l-7-7 7-7" />,
+  Trash2: (props) => <Icon {...props} d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6" />,
+  Edit: (props) => <Icon {...props} d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />,
+  Home: (props) => <Icon {...props} d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />,
+  X: (props) => <Icon {...props} d="M18 6L6 18M6 6l12 12" />,
+  Save: (props) => <Icon {...props} d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2zM17 21v-8H7v8M7 3v5h8" />,
+  Clock: (props) => <Icon {...props} d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 6v6l4 2" />,
+  Users: (props) => <Icon {...props} d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 3a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />,
+  Calendar: (props) => <Icon {...props} d="M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zM16 2v4M8 2v4M3 10h18" />,
+  Filter: (props) => <Icon {...props} d="M22 3H2l8 9.46V19l4 2v-8.54L22 3z" />,
+  FileText: (props) => <Icon {...props} d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M16 13H8M16 17H8M10 9H8" />,
+  ClipboardList: (props) => <Icon {...props} d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2M15 2H9a1 1 0 0 0-1 1v2a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zM12 11h4M12 16h4M8 11h.01M8 16h.01" />,
+  CheckSquare: (props) => <Icon {...props} d="M9 11l3 3L22 4M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />,
+  AlertCircle: (props) => <Icon {...props} d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM12 8v4M12 16h.01" />,
+  AlertTriangle: (props) => <Icon {...props} d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01" />,
+  LayoutDashboard: (props) => <Icon {...props} d="M3 3h7v9H3zM14 3h7v5h-7zM14 12h7v9h-7zM3 16h7v5H3z" />,
+  TrendingUp: (props) => <Icon {...props} d="M23 6l-9.5 9.5-5-5L1 18M17 6h6v6" />,
+  FileDown: (props) => <Icon {...props} d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M12 18v-6M9 15l3 3 3-3" />,
+  Check: (props) => <Icon {...props} d="M20 6L9 17l-5-5" />,
+  Circle: (props) => <svg xmlns="http://www.w3.org/2000/svg" width={props.size || 24} height={props.size || 24} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10" /></svg>,
+  UserCircle: (props) => <Icon {...props} d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zM5.64 16.36a8 8 0 0 1 12.72 0M12 12a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" />,
+};
+
+// Destructure for easier use
+const { User, Plus, MapPin, Phone, Mail, ChevronRight, ArrowLeft, Trash2, Edit, Home, X, Save, UserCircle, Clock, Users, Calendar, ChevronLeft, Filter, FileText, ClipboardList, CheckSquare, AlertCircle, LayoutDashboard, AlertTriangle, TrendingUp, FileDown, Check, Circle } = Icons;
+
+// Storage keys
+const STORAGE_KEY = 'bcba-caseload-clients';
+const APPOINTMENTS_KEY = 'bcba-appointments';
+const WEEKLY_RECORDS_KEY = 'bcba-weekly-records';
+
+// Session type configuration
+const SESSION_TYPES = {
+  supervision: { label: 'Supervision', color: 'bg-indigo-500', lightBg: 'bg-indigo-100', text: 'text-indigo-700', border: 'border-indigo-300', requiresNote: true },
+  parentTraining: { label: 'Parent Training', color: 'bg-purple-500', lightBg: 'bg-purple-100', text: 'text-purple-700', border: 'border-purple-300', requiresNote: true },
+  assessment: { label: 'Assessment', color: 'bg-emerald-500', lightBg: 'bg-emerald-100', text: 'text-emerald-700', border: 'border-emerald-300', requiresNote: true },
+  treatmentPlanning: { label: 'Treatment Planning', color: 'bg-amber-500', lightBg: 'bg-amber-100', text: 'text-amber-700', border: 'border-amber-300', requiresNote: true },
+  teamMeeting: { label: 'Team Meeting', color: 'bg-cyan-500', lightBg: 'bg-cyan-100', text: 'text-cyan-700', border: 'border-cyan-300', requiresNote: false },
+  other: { label: 'Other', color: 'bg-gray-500', lightBg: 'bg-gray-100', text: 'text-gray-700', border: 'border-gray-300', requiresNote: false }
+};
+
+// Note status configuration
+const NOTE_STATUSES = {
+  pending: { label: 'Note Pending', color: 'text-amber-600', bg: 'bg-amber-100' },
+  completed: { label: 'Note Complete', color: 'text-green-600', bg: 'bg-green-100' },
+  not_required: { label: 'No Note Needed', color: 'text-gray-400', bg: 'bg-gray-100' }
+};
+
+// Helper to get default note status based on session type
+const getDefaultNoteStatus = (sessionType) => {
+  return SESSION_TYPES[sessionType]?.requiresNote ? 'pending' : 'not_required';
+};
+
+// Days of the week
+const DAYS_OF_WEEK = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+const DAYS_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'];
+
+// Time slots for the calendar (7 AM to 8 PM)
+const TIME_SLOTS = [];
+for (let hour = 7; hour <= 20; hour++) {
+  TIME_SLOTS.push(`${hour.toString().padStart(2, '0')}:00`);
+}
+
+// Helper to format time for display
+const formatTime = (time) => {
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minutes} ${ampm}`;
+};
+
+// Helper to format time short
+const formatTimeShort = (time) => {
+  const [hours, minutes] = time.split(':');
+  const hour = parseInt(hours);
+  const ampm = hour >= 12 ? 'p' : 'a';
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}${minutes !== '00' ? ':' + minutes : ''}${ampm}`;
+};
+
+// Helper to get week dates
+const getWeekDates = (date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust for Sunday
+  const monday = new Date(d.setDate(diff));
+  
+  const weekDates = [];
+  for (let i = 0; i < 5; i++) {
+    const date = new Date(monday);
+    date.setDate(monday.getDate() + i);
+    weekDates.push(date);
+  }
+  return weekDates;
+};
+
+// Helper to get Monday of a week
+const getWeekStart = (date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  d.setDate(diff);
+  return getDateString(d);
+};
+
+// Helper to get week end (Friday)
+const getWeekEnd = (date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1) + 4; // Monday + 4 = Friday
+  d.setDate(diff);
+  return getDateString(d);
+};
+
+// Helper to format week range for display
+const formatWeekRange = (weekStart) => {
+  const start = new Date(weekStart + 'T00:00:00');
+  const end = new Date(start);
+  end.setDate(end.getDate() + 4);
+  return `${start.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${end.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+};
+
+// Helper to get month/year key for aggregation
+const getMonthKey = (dateString) => {
+  const d = new Date(dateString + 'T00:00:00');
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+};
+
+// Helper to format month for display
+const formatMonth = (monthKey) => {
+  const [year, month] = monthKey.split('-');
+  const d = new Date(parseInt(year), parseInt(month) - 1, 1);
+  return d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+};
+
+// Helper to format date
+const formatDate = (date) => {
+  return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+};
+
+const formatFullDate = (date) => {
+  return date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+};
+
+// Helper to get date string for comparison
+const getDateString = (date) => {
+  return date.toISOString().split('T')[0];
+};
+
+// Generate unique ID
+const generateId = () => Math.random().toString(36).substr(2, 9);
+
+// Helper to get client initials from name
+const getClientInitials = (client) => {
+  // If client has the new clientName field
+  if (client.clientName) {
+    const name = client.clientName.trim();
+    // If it's already just initials (2-3 uppercase letters), return as-is
+    if (/^[A-Z]{2,3}$/.test(name)) {
+      return name;
+    }
+    // Otherwise extract initials from words
+    const words = name.split(/\s+/);
+    if (words.length >= 2) {
+      return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+    }
+    return name.substring(0, 2).toUpperCase();
+  }
+  // Fallback for old firstName/lastName format
+  if (client.firstName && client.lastName) {
+    return (client.firstName[0] + client.lastName[0]).toUpperCase();
+  }
+  return '??';
+};
+
+// Helper to get client display name
+const getClientDisplayName = (client) => {
+  if (client.clientName) {
+    return client.clientName;
+  }
+  if (client.firstName && client.lastName) {
+    return `${client.firstName} ${client.lastName}`;
+  }
+  return 'Unknown';
+};
+
+// Sample data
+const sampleClients = [
+  {
+    id: '1',
+    clientName: 'Alex Thompson',
+    address: '',
+    serviceLocations: [
+      { id: 'loc1', name: 'Home', address: '123 Oak Street, Springfield, IL 62701' }
+    ],
+    parentName: 'Sarah Thompson',
+    parentPhone: '(555) 123-4567',
+    parentEmail: 'sarah.thompson@email.com',
+    authorizedHours: 25,
+    bcbaSupervisionHours: 8,
+    bcbaParentTrainingHours: 4,
+    insuranceProvider: 'Blue Cross Blue Shield',
+    authEndDate: '2025-06-30',
+    reauthReminderDays: '30',
+    notes: 'Responds well to token economy. Parent very involved.',
+    therapists: [
+      {
+        id: 't1',
+        name: 'Maria Garcia',
+        credential: 'RBT',
+        sessions: [
+          { id: 's1', day: 'Monday', startTime: '09:00', endTime: '12:00' },
+          { id: 's2', day: 'Wednesday', startTime: '09:00', endTime: '12:00' },
+          { id: 's3', day: 'Friday', startTime: '09:00', endTime: '12:00' }
+        ]
+      }
+    ]
+  },
+  {
+    id: '2',
+    clientName: 'Jordan Martinez',
+    address: '',
+    serviceLocations: [
+      { id: 'loc2', name: 'Home', address: '456 Maple Avenue, Springfield, IL 62702' },
+      { id: 'loc3', name: 'Clinic', address: '789 Health Center Dr, Springfield, IL 62704' }
+    ],
+    parentName: 'Michael Martinez',
+    parentPhone: '(555) 234-5678',
+    parentEmail: 'michael.m@email.com',
+    authorizedHours: 30,
+    bcbaSupervisionHours: 10,
+    bcbaParentTrainingHours: 4,
+    insuranceProvider: 'Aetna',
+    authEndDate: '2025-04-15',
+    reauthReminderDays: '21',
+    notes: 'Working on manding. Prefers outdoor activities.',
+    therapists: [
+      {
+        id: 't2',
+        name: 'James Wilson',
+        credential: 'RBT',
+        sessions: [
+          { id: 's4', day: 'Monday', startTime: '13:00', endTime: '17:00' },
+          { id: 's5', day: 'Tuesday', startTime: '13:00', endTime: '17:00' },
+          { id: 's6', day: 'Thursday', startTime: '13:00', endTime: '17:00' }
+        ]
+      },
+      {
+        id: 't3',
+        name: 'Emily Chen',
+        credential: 'RBT',
+        sessions: [
+          { id: 's7', day: 'Wednesday', startTime: '14:00', endTime: '18:00' },
+          { id: 's8', day: 'Friday', startTime: '14:00', endTime: '18:00' }
+        ]
+      }
+    ]
+  }
+];
+
+const sampleAppointments = [
+  {
+    id: 'a1',
+    date: getDateString(new Date()),
+    startTime: '10:00',
+    endTime: '11:00',
+    type: 'supervision',
+    clientId: '1',
+    therapistId: 't1',
+    notes: 'Observe manding program',
+    noteStatus: 'pending'
+  },
+  {
+    id: 'a2',
+    date: getDateString(new Date()),
+    startTime: '14:00',
+    endTime: '15:00',
+    type: 'parentTraining',
+    clientId: '2',
+    therapistId: null,
+    notes: 'Review home program',
+    noteStatus: 'pending'
+  }
+];
+
+// Main App Component
+export default function BCBACaseloadApp() {
+  const [clients, setClients] = useState([]);
+  const [appointments, setAppointments] = useState([]);
+  const [weeklyRecords, setWeeklyRecords] = useState([]);
+  const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedClient, setSelectedClient] = useState(null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [showNewClientForm, setShowNewClientForm] = useState(false);
+  const [showWeeklyVerification, setShowWeeklyVerification] = useState(false);
+  const [verificationWeek, setVerificationWeek] = useState(null); // Week being verified
+  const [showMonthlyReport, setShowMonthlyReport] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  
+  // Calendar state
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [calendarView, setCalendarView] = useState('week'); // 'day' or 'week'
+  const [showAppointmentForm, setShowAppointmentForm] = useState(false);
+  const [editingAppointment, setEditingAppointment] = useState(null);
+  const [selectedDateForNew, setSelectedDateForNew] = useState(null);
+  const [selectedTimeForNew, setSelectedTimeForNew] = useState(null);
+
+  // Load data from localStorage
+  useEffect(() => {
+    const savedClients = localStorage.getItem(STORAGE_KEY);
+    const savedAppointments = localStorage.getItem(APPOINTMENTS_KEY);
+    const savedWeeklyRecords = localStorage.getItem(WEEKLY_RECORDS_KEY);
+    
+    if (savedClients) {
+      setClients(JSON.parse(savedClients));
+    } else {
+      setClients(sampleClients);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(sampleClients));
+    }
+    
+    if (savedAppointments) {
+      // Migrate old appointments without noteStatus
+      const loaded = JSON.parse(savedAppointments);
+      const migrated = loaded.map(apt => ({
+        ...apt,
+        noteStatus: apt.noteStatus || getDefaultNoteStatus(apt.type)
+      }));
+      setAppointments(migrated);
+    } else {
+      setAppointments(sampleAppointments);
+      localStorage.setItem(APPOINTMENTS_KEY, JSON.stringify(sampleAppointments));
+    }
+    
+    if (savedWeeklyRecords) {
+      setWeeklyRecords(JSON.parse(savedWeeklyRecords));
+    }
+  }, []);
+
+  // Save clients to localStorage
+  useEffect(() => {
+    if (clients.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(clients));
+    }
+  }, [clients]);
+
+  // Save appointments to localStorage
+  useEffect(() => {
+    if (appointments.length > 0 || localStorage.getItem(APPOINTMENTS_KEY)) {
+      localStorage.setItem(APPOINTMENTS_KEY, JSON.stringify(appointments));
+    }
+  }, [appointments]);
+
+  // Save weekly records to localStorage
+  useEffect(() => {
+    if (weeklyRecords.length > 0 || localStorage.getItem(WEEKLY_RECORDS_KEY)) {
+      localStorage.setItem(WEEKLY_RECORDS_KEY, JSON.stringify(weeklyRecords));
+    }
+  }, [weeklyRecords]);
+
+  const handleSaveClient = (clientData) => {
+    if (clientData.id) {
+      setClients(clients.map(c => c.id === clientData.id ? clientData : c));
+    } else {
+      const newClient = { ...clientData, id: generateId() };
+      setClients([...clients, newClient]);
+    }
+    setShowNewClientForm(false);
+    setIsEditing(false);
+    setSelectedClient(clientData.id ? clientData : null);
+  };
+
+  const handleDeleteClient = (clientId) => {
+    if (window.confirm('Are you sure you want to delete this client? This action cannot be undone.')) {
+      setClients(clients.filter(c => c.id !== clientId));
+      // Also delete appointments for this client
+      setAppointments(appointments.filter(a => a.clientId !== clientId));
+      setSelectedClient(null);
+    }
+  };
+
+  const handleSaveAppointment = (appointmentData) => {
+    if (appointmentData.id) {
+      setAppointments(appointments.map(a => a.id === appointmentData.id ? appointmentData : a));
+    } else {
+      const newAppointment = { ...appointmentData, id: generateId() };
+      setAppointments([...appointments, newAppointment]);
+    }
+    setShowAppointmentForm(false);
+    setEditingAppointment(null);
+    setSelectedDateForNew(null);
+    setSelectedTimeForNew(null);
+  };
+
+  const handleDeleteAppointment = (appointmentId) => {
+    setAppointments(appointments.filter(a => a.id !== appointmentId));
+    setShowAppointmentForm(false);
+    setEditingAppointment(null);
+  };
+
+  const handleToggleNoteStatus = (appointmentId) => {
+    setAppointments(appointments.map(apt => {
+      if (apt.id === appointmentId) {
+        const newStatus = apt.noteStatus === 'completed' ? 'pending' : 'completed';
+        return { ...apt, noteStatus: newStatus };
+      }
+      return apt;
+    }));
+  };
+
+  const handleSaveWeeklyRecord = (record) => {
+    // Check if record for this client/week already exists
+    const existingIndex = weeklyRecords.findIndex(
+      r => r.clientId === record.clientId && r.weekStart === record.weekStart
+    );
+    
+    if (existingIndex >= 0) {
+      // Update existing record
+      const updated = [...weeklyRecords];
+      updated[existingIndex] = { ...record, id: weeklyRecords[existingIndex].id };
+      setWeeklyRecords(updated);
+    } else {
+      // Add new record
+      setWeeklyRecords([...weeklyRecords, { ...record, id: generateId() }]);
+    }
+  };
+
+  const handleSaveAllWeeklyRecords = (records) => {
+    let updated = [...weeklyRecords];
+    
+    records.forEach(record => {
+      const existingIndex = updated.findIndex(
+        r => r.clientId === record.clientId && r.weekStart === record.weekStart
+      );
+      
+      if (existingIndex >= 0) {
+        updated[existingIndex] = { ...record, id: updated[existingIndex].id };
+      } else {
+        updated.push({ ...record, id: generateId() });
+      }
+    });
+    
+    setWeeklyRecords(updated);
+    setShowWeeklyVerification(false);
+  };
+
+  // Navigation functions
+  const goToToday = () => setCurrentDate(new Date());
+  
+  const goToPrevious = () => {
+    const newDate = new Date(currentDate);
+    if (calendarView === 'day') {
+      newDate.setDate(newDate.getDate() - 1);
+      // Skip weekends
+      if (newDate.getDay() === 0) newDate.setDate(newDate.getDate() - 2);
+      if (newDate.getDay() === 6) newDate.setDate(newDate.getDate() - 1);
+    } else {
+      newDate.setDate(newDate.getDate() - 7);
+    }
+    setCurrentDate(newDate);
+  };
+  
+  const goToNext = () => {
+    const newDate = new Date(currentDate);
+    if (calendarView === 'day') {
+      newDate.setDate(newDate.getDate() + 1);
+      // Skip weekends
+      if (newDate.getDay() === 0) newDate.setDate(newDate.getDate() + 1);
+      if (newDate.getDay() === 6) newDate.setDate(newDate.getDate() + 2);
+    } else {
+      newDate.setDate(newDate.getDate() + 7);
+    }
+    setCurrentDate(newDate);
+  };
+
+  const openNewAppointment = (date, time = null) => {
+    setSelectedDateForNew(date);
+    setSelectedTimeForNew(time);
+    setEditingAppointment(null);
+    setShowAppointmentForm(true);
+  };
+
+  const openEditAppointment = (appointment) => {
+    setEditingAppointment(appointment);
+    setSelectedDateForNew(null);
+    setSelectedTimeForNew(null);
+    setShowAppointmentForm(true);
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 pb-20">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-40">
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-bold text-gray-800">BCBA Caseload</h1>
+          {activeTab === 'clients' && !selectedClient && !showNewClientForm && (
+            <button
+              onClick={() => setShowNewClientForm(true)}
+              className="p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700"
+            >
+              <Plus size={20} />
+            </button>
+          )}
+          {activeTab === 'calendar' && (
+            <button
+              onClick={() => openNewAppointment(currentDate)}
+              className="p-2 bg-indigo-600 text-white rounded-full hover:bg-indigo-700"
+            >
+              <Plus size={20} />
+            </button>
+          )}
+          {activeTab === 'dashboard' && (
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => setShowSettings(true)}
+                className="p-2 text-gray-500 hover:bg-gray-100 rounded-full"
+                title="Settings & Backup"
+              >
+                <ClipboardList size={20} />
+              </button>
+              <button
+                onClick={() => setShowMonthlyReport(true)}
+                className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-full"
+                title="Monthly Report"
+              >
+                <FileDown size={20} />
+              </button>
+            </div>
+          )}
+        </div>
+      </header>
+
+      {/* Main Content */}
+      <main className="px-4 py-4 relative z-0">
+        {activeTab === 'dashboard' && (
+          <Dashboard
+            clients={clients}
+            appointments={appointments}
+            weeklyRecords={weeklyRecords}
+            onToggleNoteStatus={handleToggleNoteStatus}
+            onEditAppointment={openEditAppointment}
+          />
+        )}
+
+        {activeTab === 'clients' && (
+          <>
+            {showNewClientForm ? (
+              <ClientForm
+                onSave={handleSaveClient}
+                onCancel={() => setShowNewClientForm(false)}
+              />
+            ) : selectedClient ? (
+              isEditing ? (
+                <ClientForm
+                  client={selectedClient}
+                  onSave={handleSaveClient}
+                  onCancel={() => setIsEditing(false)}
+                />
+              ) : (
+                <ClientDetail
+                  client={selectedClient}
+                  onBack={() => setSelectedClient(null)}
+                  onEdit={() => setIsEditing(true)}
+                  onDelete={() => handleDeleteClient(selectedClient.id)}
+                  onUpdateClient={(updated) => {
+                    setClients(clients.map(c => c.id === updated.id ? updated : c));
+                    setSelectedClient(updated);
+                  }}
+                  appointments={appointments.filter(a => a.clientId === selectedClient.id)}
+                  weeklyRecords={weeklyRecords.filter(r => r.clientId === selectedClient.id)}
+                />
+              )
+            ) : (
+              <ClientList
+                clients={clients}
+                onSelectClient={setSelectedClient}
+              />
+            )}
+          </>
+        )}
+
+        {activeTab === 'calendar' && (
+          <CalendarView
+            currentDate={currentDate}
+            view={calendarView}
+            appointments={appointments}
+            clients={clients}
+            onViewChange={setCalendarView}
+            onPrevious={goToPrevious}
+            onNext={goToNext}
+            onToday={goToToday}
+            onDateSelect={(date) => {
+              setCurrentDate(date);
+              if (calendarView === 'week') setCalendarView('day');
+            }}
+            onNewAppointment={openNewAppointment}
+            onEditAppointment={openEditAppointment}
+          />
+        )}
+
+        {activeTab === 'hours' && (
+          <HoursView
+            clients={clients}
+            weeklyRecords={weeklyRecords}
+            onStartVerification={(weekStart) => {
+              setVerificationWeek(weekStart);
+              setShowWeeklyVerification(true);
+            }}
+          />
+        )}
+      </main>
+
+      {/* Weekly Verification Modal */}
+      {showWeeklyVerification && (
+        <WeeklyVerification
+          clients={clients}
+          weekStart={verificationWeek}
+          existingRecords={weeklyRecords.filter(r => r.weekStart === verificationWeek)}
+          onSave={handleSaveAllWeeklyRecords}
+          onCancel={() => {
+            setShowWeeklyVerification(false);
+            setVerificationWeek(null);
+          }}
+        />
+      )}
+
+      {/* Appointment Form Modal */}
+      {showAppointmentForm && (
+        <AppointmentForm
+          key={editingAppointment?.id || 'new'}
+          appointment={editingAppointment}
+          initialDate={selectedDateForNew}
+          initialTime={selectedTimeForNew}
+          clients={clients}
+          onSave={handleSaveAppointment}
+          onDelete={editingAppointment ? () => handleDeleteAppointment(editingAppointment.id) : null}
+          onCancel={() => {
+            setShowAppointmentForm(false);
+            setEditingAppointment(null);
+            setSelectedDateForNew(null);
+            setSelectedTimeForNew(null);
+          }}
+        />
+      )}
+
+      {/* Monthly Report Modal */}
+      {showMonthlyReport && (
+        <MonthlyReport
+          clients={clients}
+          appointments={appointments}
+          weeklyRecords={weeklyRecords}
+          onClose={() => setShowMonthlyReport(false)}
+        />
+      )}
+
+      {/* Settings Modal */}
+      {showSettings && (
+        <SettingsBackup
+          clients={clients}
+          appointments={appointments}
+          weeklyRecords={weeklyRecords}
+          onImport={(data) => {
+            if (data.clients) setClients(data.clients);
+            if (data.appointments) setAppointments(data.appointments);
+            if (data.weeklyRecords) setWeeklyRecords(data.weeklyRecords);
+          }}
+          onClose={() => setShowSettings(false)}
+        />
+      )}
+
+      {/* Bottom Navigation */}
+      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 px-2 py-2 z-50">
+        <div className="flex justify-around">
+          <button
+            onClick={() => setActiveTab('dashboard')}
+            className={`flex flex-col items-center py-2 px-3 ${activeTab === 'dashboard' ? 'text-indigo-600' : 'text-gray-500'}`}
+          >
+            <LayoutDashboard size={24} />
+            <span className="text-xs mt-1">Dashboard</span>
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab('clients');
+              setSelectedClient(null);
+              setShowNewClientForm(false);
+            }}
+            className={`flex flex-col items-center py-2 px-3 ${activeTab === 'clients' ? 'text-indigo-600' : 'text-gray-500'}`}
+          >
+            <Users size={24} />
+            <span className="text-xs mt-1">Clients</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('calendar')}
+            className={`flex flex-col items-center py-2 px-3 ${activeTab === 'calendar' ? 'text-indigo-600' : 'text-gray-500'}`}
+          >
+            <Calendar size={24} />
+            <span className="text-xs mt-1">Calendar</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('hours')}
+            className={`flex flex-col items-center py-2 px-3 ${activeTab === 'hours' ? 'text-indigo-600' : 'text-gray-500'}`}
+          >
+            <CheckSquare size={24} />
+            <span className="text-xs mt-1">Hours</span>
+          </button>
+        </div>
+      </nav>
+    </div>
+  );
+}
+
+// Dashboard Component
+function Dashboard({ clients, appointments, weeklyRecords, onToggleNoteStatus, onEditAppointment }) {
+  const [dashboardTab, setDashboardTab] = useState('current'); // 'current' or 'next'
+  
+  // Get current and next month info
+  const now = new Date();
+  const todayString = getDateString(now);
+  const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const nextMonthKey = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth() + 1).padStart(2, '0')}`;
+  
+  // Get clients with therapists
+  const activeClients = clients.filter(c => c.therapists && c.therapists.length > 0);
+
+  // Get today's appointments
+  const todaysAppointments = appointments
+    .filter(apt => apt.date === todayString)
+    .sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+  // Get overdue notes (past appointments with pending note status)
+  const overdueNotes = appointments.filter(apt => {
+    const aptDate = new Date(apt.date + 'T00:00:00');
+    const today = new Date(todayString + 'T00:00:00');
+    return aptDate < today && apt.noteStatus === 'pending';
+  }).sort((a, b) => b.date.localeCompare(a.date)); // Most recent first
+
+  // Calculate current month data for each client
+  const getCurrentMonthData = () => {
+    return activeClients.map(client => {
+      const clientRecords = weeklyRecords.filter(r => 
+        r.clientId === client.id && getMonthKey(r.weekStart) === currentMonthKey
+      );
+      
+      let totalDirectHours = 0;
+      let totalSupervision = 0;
+      let totalParentTraining = 0;
+      const therapistData = {};
+      
+      clientRecords.forEach(record => {
+        totalParentTraining += parseFloat(record.parentTrainingHours) || 0;
+        
+        record.therapistHours?.forEach(th => {
+          totalDirectHours += th.actual || 0;
+          totalSupervision += parseFloat(th.supervisionHours) || 0;
+          
+          if (!therapistData[th.therapistId]) {
+            therapistData[th.therapistId] = { name: th.name, direct: 0, supervision: 0 };
+          }
+          therapistData[th.therapistId].direct += th.actual || 0;
+          therapistData[th.therapistId].supervision += parseFloat(th.supervisionHours) || 0;
+        });
+      });
+
+      const supervisionTarget = parseFloat(client.bcbaSupervisionHours) || 0;
+      const parentTrainingTarget = parseFloat(client.bcbaParentTrainingHours) || 0;
+      const supervisionPercent = totalDirectHours > 0 ? (totalSupervision / totalDirectHours) * 100 : 0;
+      
+      // Calculate target supervision percent (typically 5-10%)
+      const targetSupervisionPercent = 5; // minimum threshold
+      
+      // Check for uneven supervision distribution
+      const therapists = Object.values(therapistData);
+      let supervisionImbalance = null;
+      if (therapists.length > 1) {
+        const supervisionRates = therapists
+          .filter(t => t.direct > 0)
+          .map(t => ({ name: t.name, rate: (t.supervision / t.direct) * 100 }));
+        
+        if (supervisionRates.length > 1) {
+          const maxRate = Math.max(...supervisionRates.map(r => r.rate));
+          const minRate = Math.min(...supervisionRates.map(r => r.rate));
+          if (maxRate - minRate > 5) { // More than 5% difference
+            const highest = supervisionRates.find(r => r.rate === maxRate);
+            const lowest = supervisionRates.find(r => r.rate === minRate);
+            supervisionImbalance = { highest, lowest };
+          }
+        }
+      }
+
+      // Check reauth dates
+      let reauthAlert = null;
+      if (client.authEndDate) {
+        const authEnd = new Date(client.authEndDate);
+        const daysUntil = Math.ceil((authEnd - now) / (1000 * 60 * 60 * 24));
+        const reminderDays = parseInt(client.reauthReminderDays || '30');
+        if (daysUntil <= reminderDays) {
+          reauthAlert = { daysUntil, isOverdue: daysUntil <= 0 };
+        }
+      }
+
+      return {
+        client,
+        totalDirectHours,
+        totalSupervision,
+        totalParentTraining,
+        supervisionTarget,
+        parentTrainingTarget,
+        supervisionPercent,
+        therapists,
+        supervisionImbalance,
+        reauthAlert,
+        weeksVerified: clientRecords.length,
+        isBelowTarget: supervisionPercent < targetSupervisionPercent && totalDirectHours > 0
+      };
+    });
+  };
+
+  // Calculate next month scheduling needs
+  const getNextMonthData = () => {
+    // Get first and last day of next month
+    const nextMonthStart = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 1);
+    const nextMonthEnd = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0);
+    
+    return activeClients.map(client => {
+      // Get scheduled BCBA appointments for next month
+      const nextMonthAppointments = appointments.filter(apt => {
+        const aptDate = new Date(apt.date);
+        return apt.clientId === client.id && 
+               aptDate >= nextMonthStart && 
+               aptDate <= nextMonthEnd;
+      });
+
+      // Calculate scheduled supervision and parent training
+      let scheduledSupervision = 0;
+      let scheduledParentTraining = 0;
+      
+      nextMonthAppointments.forEach(apt => {
+        const [startH, startM] = apt.startTime.split(':').map(Number);
+        const [endH, endM] = apt.endTime.split(':').map(Number);
+        const hours = ((endH * 60 + endM) - (startH * 60 + startM)) / 60;
+        
+        if (apt.type === 'supervision') {
+          scheduledSupervision += hours;
+        } else if (apt.type === 'parentTraining') {
+          scheduledParentTraining += hours;
+        }
+      });
+
+      const supervisionTarget = parseFloat(client.bcbaSupervisionHours) || 0;
+      const parentTrainingTarget = parseFloat(client.bcbaParentTrainingHours) || 0;
+      
+      const supervisionNeeded = Math.max(0, supervisionTarget - scheduledSupervision);
+      const parentTrainingNeeded = Math.max(0, parentTrainingTarget - scheduledParentTraining);
+
+      return {
+        client,
+        supervisionTarget,
+        parentTrainingTarget,
+        scheduledSupervision,
+        scheduledParentTraining,
+        supervisionNeeded,
+        parentTrainingNeeded,
+        supervisionProgress: supervisionTarget > 0 ? (scheduledSupervision / supervisionTarget) * 100 : 100,
+        parentTrainingProgress: parentTrainingTarget > 0 ? (scheduledParentTraining / parentTrainingTarget) * 100 : 100
+      };
+    });
+  };
+
+  const currentMonthData = getCurrentMonthData();
+  const nextMonthData = getNextMonthData();
+
+  // Count alerts
+  const alertCount = currentMonthData.reduce((count, data) => {
+    if (data.reauthAlert) count++;
+    if (data.isBelowTarget) count++;
+    if (data.supervisionImbalance) count++;
+    return count;
+  }, 0) + overdueNotes.length;
+
+  // Count scheduling needs
+  const schedulingNeeds = nextMonthData.reduce((count, data) => {
+    if (data.supervisionNeeded > 0) count++;
+    if (data.parentTrainingNeeded > 0) count++;
+    return count;
+  }, 0);
+
+  return (
+    <div className="space-y-4">
+      {/* Today's Schedule Section */}
+      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <h2 className="text-lg font-semibold text-gray-800 mb-3 flex items-center">
+          <Calendar size={20} className="mr-2 text-indigo-600" />
+          Today's Schedule
+        </h2>
+        
+        {todaysAppointments.length === 0 ? (
+          <p className="text-gray-500 text-sm text-center py-4">No appointments scheduled for today</p>
+        ) : (
+          <div className="space-y-2">
+            {todaysAppointments.map(apt => {
+              const typeConfig = SESSION_TYPES[apt.type];
+              const client = clients.find(c => c.id === apt.clientId);
+              
+              return (
+                <div 
+                  key={apt.id} 
+                  className={`${typeConfig.lightBg} ${typeConfig.border} border rounded-lg p-3`}
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 cursor-pointer" onClick={() => onEditAppointment(apt)}>
+                      <div className="flex items-center space-x-2">
+                        <span className={`font-medium ${typeConfig.text}`}>
+                          {formatTimeShort(apt.startTime)}-{formatTimeShort(apt.endTime)}
+                        </span>
+                        <span className="text-gray-600">•</span>
+                        <span className="text-gray-800 font-medium">{typeConfig.label}</span>
+                      </div>
+                      {client && (
+                        <p className="text-sm text-gray-600 mt-1">
+                          {getClientInitials(client)}
+                        </p>
+                      )}
+                    </div>
+                    
+                    {/* Note Status Toggle */}
+                    {apt.noteStatus !== 'not_required' && (
+                      <button
+                        onClick={() => onToggleNoteStatus(apt.id)}
+                        className={`flex items-center space-x-1 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                          apt.noteStatus === 'completed' 
+                            ? 'bg-green-100 text-green-700' 
+                            : 'bg-amber-100 text-amber-700'
+                        }`}
+                      >
+                        {apt.noteStatus === 'completed' ? (
+                          <>
+                            <Check size={16} />
+                            <span>Done</span>
+                          </>
+                        ) : (
+                          <>
+                            <Circle size={16} />
+                            <span>Note</span>
+                          </>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Overdue Notes Alert */}
+      {overdueNotes.length > 0 && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+          <h3 className="font-semibold text-amber-800 flex items-center mb-3">
+            <FileText size={18} className="mr-2" />
+            Overdue Notes ({overdueNotes.length})
+          </h3>
+          <div className="space-y-2 max-h-40 overflow-y-auto">
+            {overdueNotes.slice(0, 5).map(apt => {
+              const client = clients.find(c => c.id === apt.clientId);
+              const typeConfig = SESSION_TYPES[apt.type];
+              const aptDate = new Date(apt.date + 'T00:00:00');
+              
+              return (
+                <div key={apt.id} className="bg-white rounded-lg p-3 border border-amber-200 flex items-center justify-between">
+                  <div onClick={() => onEditAppointment(apt)} className="flex-1 cursor-pointer">
+                    <p className="font-medium text-gray-800">
+                      {client ? getClientInitials(client) : 'Unknown'} - {typeConfig.label}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {aptDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => onToggleNoteStatus(apt.id)}
+                    className="px-3 py-1.5 bg-amber-100 text-amber-700 rounded-lg text-sm font-medium hover:bg-amber-200"
+                  >
+                    Mark Done
+                  </button>
+                </div>
+              );
+            })}
+            {overdueNotes.length > 5 && (
+              <p className="text-xs text-amber-600 text-center">+{overdueNotes.length - 5} more</p>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Sub-tabs */}
+      <div className="flex bg-gray-100 rounded-lg p-1">
+        <button
+          onClick={() => setDashboardTab('current')}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+            dashboardTab === 'current'
+              ? 'bg-white text-indigo-600 shadow-sm'
+              : 'text-gray-600'
+          }`}
+        >
+          Current Month
+          {alertCount > 0 && (
+            <span className="ml-2 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+              {alertCount}
+            </span>
+          )}
+        </button>
+        <button
+          onClick={() => setDashboardTab('next')}
+          className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+            dashboardTab === 'next'
+              ? 'bg-white text-indigo-600 shadow-sm'
+              : 'text-gray-600'
+          }`}
+        >
+          Next Month
+          {schedulingNeeds > 0 && (
+            <span className="ml-2 bg-amber-500 text-white text-xs px-1.5 py-0.5 rounded-full">
+              {schedulingNeeds}
+            </span>
+          )}
+        </button>
+      </div>
+
+      {/* Current Month View */}
+      {dashboardTab === 'current' && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-800">
+            {formatMonth(currentMonthKey)}
+          </h2>
+
+          {/* Alerts Section */}
+          {alertCount > 0 && (
+            <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+              <h3 className="font-semibold text-red-800 flex items-center mb-3">
+                <AlertTriangle size={18} className="mr-2" />
+                Alerts ({alertCount})
+              </h3>
+              <div className="space-y-2">
+                {currentMonthData.map(data => (
+                  <React.Fragment key={data.client.id}>
+                    {data.reauthAlert && (
+                      <div className="bg-white rounded-lg p-3 border border-red-200">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-gray-800">
+                            {getClientInitials(data.client)}
+                          </span>
+                          <span className={`text-sm ${data.reauthAlert.isOverdue ? 'text-red-600 font-bold' : 'text-red-600'}`}>
+                            {data.reauthAlert.isOverdue 
+                              ? '⚠️ Reauth OVERDUE!' 
+                              : `📋 Reauth due in ${data.reauthAlert.daysUntil} days`}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {data.isBelowTarget && (
+                      <div className="bg-white rounded-lg p-3 border border-red-200">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium text-gray-800">
+                            {getClientInitials(data.client)}
+                          </span>
+                          <span className="text-sm text-red-600">
+                            ⚠️ Supervision at {data.supervisionPercent.toFixed(1)}% (below 5% minimum)
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {data.supervisionImbalance && (
+                      <div className="bg-white rounded-lg p-3 border border-amber-200">
+                        <div className="flex items-start justify-between">
+                          <span className="font-medium text-gray-800">
+                            {getClientInitials(data.client)}
+                          </span>
+                          <div className="text-sm text-amber-700 text-right">
+                            <p>⚖️ Uneven supervision distribution</p>
+                            <p className="text-xs text-amber-600">
+                              {data.supervisionImbalance.highest.name}: {data.supervisionImbalance.highest.rate.toFixed(0)}% vs {data.supervisionImbalance.lowest.name}: {data.supervisionImbalance.lowest.rate.toFixed(0)}%
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </React.Fragment>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Client Breakdown */}
+          {activeClients.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <Users size={48} className="mx-auto mb-4 text-gray-300" />
+              <p>No clients with therapists assigned</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {currentMonthData.map(data => (
+                <div key={data.client.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <span className="text-indigo-600 font-bold">
+                          {getClientInitials(data.client)}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-800">{getClientInitials(data.client)}</h3>
+                        <p className="text-xs text-gray-500">{data.weeksVerified} weeks verified</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* BCBA Services */}
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="bg-purple-50 rounded-lg p-3">
+                      <p className="text-xs text-purple-600 font-medium">Supervision</p>
+                      <p className="text-lg font-bold text-purple-700">{data.totalSupervision.toFixed(1)} hrs</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-purple-500">Target: {data.supervisionTarget}/mo</span>
+                        {data.supervisionTarget > 0 && (
+                          <span className={`text-xs font-medium ${data.totalSupervision >= data.supervisionTarget ? 'text-green-600' : 'text-amber-600'}`}>
+                            {data.totalSupervision >= data.supervisionTarget ? '✓' : `${(data.supervisionTarget - data.totalSupervision).toFixed(1)} to go`}
+                          </span>
+                        )}
+                      </div>
+                      {data.totalDirectHours > 0 && (
+                        <p className="text-xs text-purple-600 mt-1 font-medium">
+                          {data.supervisionPercent.toFixed(1)}% ratio
+                        </p>
+                      )}
+                    </div>
+                    <div className="bg-amber-50 rounded-lg p-3">
+                      <p className="text-xs text-amber-600 font-medium">Parent Training</p>
+                      <p className="text-lg font-bold text-amber-700">{data.totalParentTraining.toFixed(1)} hrs</p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-amber-500">Target: {data.parentTrainingTarget}/mo</span>
+                        {data.parentTrainingTarget > 0 && (
+                          <span className={`text-xs font-medium ${data.totalParentTraining >= data.parentTrainingTarget ? 'text-green-600' : 'text-amber-600'}`}>
+                            {data.totalParentTraining >= data.parentTrainingTarget ? '✓' : `${(data.parentTrainingTarget - data.totalParentTraining).toFixed(1)} to go`}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Per-therapist supervision */}
+                  {data.therapists.length > 0 && (
+                    <div className="border-t border-gray-100 pt-3">
+                      <p className="text-xs text-gray-500 mb-2">Therapist Supervision Ratios</p>
+                      <div className="space-y-1">
+                        {data.therapists.map((th, idx) => (
+                          <div key={idx} className="flex justify-between text-sm">
+                            <span className="text-gray-600">{th.name}</span>
+                            <span className={`font-medium ${
+                              th.direct > 0 && (th.supervision / th.direct) * 100 < 5 
+                                ? 'text-red-600' 
+                                : 'text-purple-600'
+                            }`}>
+                              {th.direct > 0 
+                                ? `${((th.supervision / th.direct) * 100).toFixed(0)}%`
+                                : '—'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Next Month View */}
+      {dashboardTab === 'next' && (
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold text-gray-800">
+            {formatMonth(nextMonthKey)} - Scheduling Needs
+          </h2>
+
+          {activeClients.length === 0 ? (
+            <div className="text-center py-12 text-gray-500">
+              <Users size={48} className="mx-auto mb-4 text-gray-300" />
+              <p>No clients with therapists assigned</p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {nextMonthData.map(data => (
+                <div key={data.client.id} className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                      <span className="text-indigo-600 font-bold">
+                        {getClientInitials(data.client)}
+                      </span>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-800">{getClientInitials(data.client)}</h3>
+                      <p className="text-xs text-gray-500">{getClientDisplayName(data.client)}</p>
+                    </div>
+                  </div>
+
+                  {/* Supervision Progress */}
+                  <div className="mb-4">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium text-purple-700">Supervision</span>
+                      <span className="text-sm text-gray-600">
+                        {data.scheduledSupervision.toFixed(1)} / {data.supervisionTarget} hrs
+                      </span>
+                    </div>
+                    <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all ${
+                          data.supervisionProgress >= 100 ? 'bg-green-500' : 'bg-purple-500'
+                        }`}
+                        style={{ width: `${Math.min(data.supervisionProgress, 100)}%` }}
+                      />
+                    </div>
+                    {data.supervisionNeeded > 0 ? (
+                      <p className="text-xs text-amber-600 mt-1 font-medium">
+                        ⚠️ Need to schedule {data.supervisionNeeded.toFixed(1)} more hrs
+                      </p>
+                    ) : (
+                      <p className="text-xs text-green-600 mt-1 font-medium">
+                        ✓ Fully scheduled
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Parent Training Progress */}
+                  <div>
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-sm font-medium text-amber-700">Parent Training</span>
+                      <span className="text-sm text-gray-600">
+                        {data.scheduledParentTraining.toFixed(1)} / {data.parentTrainingTarget} hrs
+                      </span>
+                    </div>
+                    <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+                      <div 
+                        className={`h-full rounded-full transition-all ${
+                          data.parentTrainingProgress >= 100 ? 'bg-green-500' : 'bg-amber-500'
+                        }`}
+                        style={{ width: `${Math.min(data.parentTrainingProgress, 100)}%` }}
+                      />
+                    </div>
+                    {data.parentTrainingNeeded > 0 ? (
+                      <p className="text-xs text-amber-600 mt-1 font-medium">
+                        ⚠️ Need to schedule {data.parentTrainingNeeded.toFixed(1)} more hrs
+                      </p>
+                    ) : (
+                      <p className="text-xs text-green-600 mt-1 font-medium">
+                        ✓ Fully scheduled
+                      </p>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Summary */}
+          {schedulingNeeds > 0 && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+              <p className="text-amber-800 text-sm">
+                <TrendingUp size={16} className="inline mr-2" />
+                <strong>{schedulingNeeds}</strong> scheduling {schedulingNeeds === 1 ? 'item needs' : 'items need'} attention for {formatMonth(nextMonthKey)}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Client List Component
+function ClientList({ clients, onSelectClient }) {
+  const sortedClients = [...clients].sort((a, b) => 
+    getClientDisplayName(a).localeCompare(getClientDisplayName(b))
+  );
+
+  return (
+    <div className="space-y-3">
+      <h2 className="text-lg font-semibold text-gray-700 mb-4">
+        {clients.length} {clients.length === 1 ? 'Client' : 'Clients'}
+      </h2>
+      
+      {sortedClients.map(client => (
+        <button
+          key={client.id}
+          onClick={() => onSelectClient(client)}
+          className="w-full bg-white rounded-xl p-4 shadow-sm border border-gray-100 flex items-center justify-between hover:border-indigo-200 transition-colors text-left"
+        >
+          <div className="flex items-center space-x-3">
+            <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+              <span className="text-indigo-600 font-bold text-lg">
+                {getClientInitials(client)}
+              </span>
+            </div>
+            <div>
+              <h3 className="font-bold text-indigo-600 text-lg">
+                {getClientInitials(client)}
+              </h3>
+              <p className="text-xs text-gray-500">
+                {getClientDisplayName(client)}
+              </p>
+              <p className="text-xs text-gray-400 mt-0.5">
+                {client.authorizedHours} hrs/week • {client.therapists?.length || 0} therapist{client.therapists?.length !== 1 ? 's' : ''}
+              </p>
+            </div>
+          </div>
+          <ChevronRight className="text-gray-400" size={20} />
+        </button>
+      ))}
+
+      {clients.length === 0 && (
+        <div className="text-center py-12">
+          <UserCircle className="mx-auto text-gray-300" size={64} />
+          <p className="text-gray-500 mt-4">No clients yet</p>
+          <p className="text-gray-400 text-sm">Tap + to add your first client</p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Client Detail Component
+function ClientDetail({ client, onBack, onEdit, onDelete, onUpdateClient, appointments, weeklyRecords = [] }) {
+  const [showTherapistForm, setShowTherapistForm] = useState(false);
+  const [editingTherapist, setEditingTherapist] = useState(null);
+  const [activeTab, setActiveTab] = useState('info'); // 'info' or 'treatment'
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
+
+  const handleSaveTherapist = (therapistData) => {
+    let updatedTherapists;
+    if (therapistData.id) {
+      updatedTherapists = client.therapists.map(t => 
+        t.id === therapistData.id ? therapistData : t
+      );
+    } else {
+      const newTherapist = { ...therapistData, id: generateId(), sessions: therapistData.sessions || [] };
+      updatedTherapists = [...(client.therapists || []), newTherapist];
+    }
+    onUpdateClient({ ...client, therapists: updatedTherapists });
+    setShowTherapistForm(false);
+    setEditingTherapist(null);
+  };
+
+  const handleDeleteTherapist = (therapistId) => {
+    const updatedTherapists = client.therapists.filter(t => t.id !== therapistId);
+    onUpdateClient({ ...client, therapists: updatedTherapists });
+  };
+
+  const calculateTherapistHours = (therapist) => {
+    let weeklyMinutes = 0;
+    therapist.sessions?.forEach(session => {
+      const [startH, startM] = session.startTime.split(':').map(Number);
+      const [endH, endM] = session.endTime.split(':').map(Number);
+      weeklyMinutes += (endH * 60 + endM) - (startH * 60 + startM);
+    });
+    return (weeklyMinutes / 60).toFixed(1);
+  };
+
+  const totalDirectHours = (client.therapists || []).reduce((sum, t) => 
+    sum + parseFloat(calculateTherapistHours(t)), 0
+  );
+
+  // Calculate monthly hours (weekly * ~4.33)
+  const monthlyDirectHours = (totalDirectHours * 4.33).toFixed(1);
+  const monthlyAuthorizedHours = (parseFloat(client.authorizedHours || 0) * 4.33).toFixed(1);
+
+  return (
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <button onClick={onBack} className="flex items-center text-indigo-600">
+          <ArrowLeft size={20} className="mr-1" />
+          Back
+        </button>
+        <div className="flex space-x-2">
+          <button onClick={onEdit} className="p-2 text-gray-600 hover:bg-gray-100 rounded-lg">
+            <Edit size={20} />
+          </button>
+          <button onClick={onDelete} className="p-2 text-red-600 hover:bg-red-50 rounded-lg">
+            <Trash2 size={20} />
+          </button>
+        </div>
+      </div>
+
+      {/* Client Header Card */}
+      <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <div className="flex items-center space-x-4">
+          <div className="w-20 h-20 bg-indigo-100 rounded-full flex items-center justify-center">
+            <span className="text-indigo-600 font-bold text-3xl">
+              {getClientInitials(client)}
+            </span>
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-indigo-600">
+              {getClientInitials(client)}
+            </h2>
+            <p className="text-gray-500 text-sm">
+              {getClientDisplayName(client)}
+            </p>
+            <p className="text-gray-400 text-xs mt-1">
+              {client.therapists?.length || 0} therapist{client.therapists?.length !== 1 ? 's' : ''} assigned
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* Tab Navigation */}
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <div className="flex border-b border-gray-200">
+          <button
+            onClick={() => setActiveTab('info')}
+            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+              activeTab === 'info'
+                ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <UserCircle size={16} className="inline mr-1.5 -mt-0.5" />
+            Client Info
+          </button>
+          <button
+            onClick={() => setActiveTab('treatment')}
+            className={`flex-1 py-3 px-4 text-sm font-medium transition-colors ${
+              activeTab === 'treatment'
+                ? 'text-indigo-600 border-b-2 border-indigo-600 bg-indigo-50/50'
+                : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50'
+            }`}
+          >
+            <ClipboardList size={16} className="inline mr-1.5 -mt-0.5" />
+            Treatment Delivery
+          </button>
+        </div>
+
+        {/* Tab Content */}
+        <div className="p-4">
+          {activeTab === 'info' ? (
+            /* Client Info Tab */
+            <div className="space-y-4">
+              {/* Parent/Caregiver Info */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
+                  <Home size={18} className="mr-2 text-gray-500" />
+                  Parent/Caregiver
+                </h3>
+                <div className="space-y-2">
+                  <p className="text-gray-700 font-medium">{client.parentName || 'Not specified'}</p>
+                  {client.parentPhone && (
+                    <a href={`tel:${client.parentPhone}`} className="flex items-center text-indigo-600 text-sm">
+                      <Phone size={16} className="mr-2" />
+                      {client.parentPhone}
+                    </a>
+                  )}
+                  {client.parentEmail && (
+                    <a href={`mailto:${client.parentEmail}`} className="flex items-center text-indigo-600 text-sm">
+                      <Mail size={16} className="mr-2" />
+                      {client.parentEmail}
+                    </a>
+                  )}
+                </div>
+              </div>
+
+              {/* Service Locations */}
+              {(client.serviceLocations?.length > 0 || client.address) && (
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
+                    <MapPin size={18} className="mr-2 text-gray-500" />
+                    Service Locations
+                  </h3>
+                  <div className="space-y-2">
+                    {client.serviceLocations?.length > 0 ? (
+                      client.serviceLocations.map((location, index) => (
+                        <div key={location.id || index} className="flex items-start justify-between p-2 bg-gray-50 rounded-lg">
+                          <div className="flex-1">
+                            <p className="text-sm font-medium text-gray-700">{location.name || `Location ${index + 1}`}</p>
+                            <a
+                              href={`https://maps.google.com/?q=${encodeURIComponent(location.address)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-indigo-600 text-xs hover:underline"
+                            >
+                              {location.address}
+                            </a>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <a
+                        href={`https://maps.google.com/?q=${encodeURIComponent(client.address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-indigo-600 text-sm hover:underline"
+                      >
+                        {client.address}
+                      </a>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Notes */}
+              {client.notes && (
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h3 className="font-semibold text-gray-800 mb-2 flex items-center">
+                    <FileText size={18} className="mr-2 text-gray-500" />
+                    Notes
+                  </h3>
+                  <p className="text-gray-600 text-sm whitespace-pre-wrap">{client.notes}</p>
+                </div>
+              )}
+            </div>
+          ) : (
+            /* Treatment Delivery Tab */
+            <div className="space-y-4">
+              {/* Direct Service Hours Summary */}
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Direct Service (RBT)</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-indigo-50 rounded-lg p-3">
+                    <p className="text-xs text-indigo-600 font-medium">Target Monthly</p>
+                    <p className="text-lg font-bold text-indigo-700">{monthlyAuthorizedHours} hrs</p>
+                    <p className="text-xs text-indigo-500">{client.authorizedHours} hrs/week</p>
+                  </div>
+                  <div className="bg-emerald-50 rounded-lg p-3">
+                    <p className="text-xs text-emerald-600 font-medium">Scheduled Monthly</p>
+                    <p className="text-lg font-bold text-emerald-700">{monthlyDirectHours} hrs</p>
+                    <p className="text-xs text-emerald-500">{totalDirectHours.toFixed(1)} hrs/week</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* BCBA Hours Summary */}
+              <div>
+                <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">BCBA Services (Monthly)</p>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="bg-purple-50 rounded-lg p-3">
+                    <p className="text-xs text-purple-600 font-medium">Supervision Target</p>
+                    <p className="text-lg font-bold text-purple-700">{client.bcbaSupervisionHours || 0} hrs</p>
+                  </div>
+                  <div className="bg-amber-50 rounded-lg p-3">
+                    <p className="text-xs text-amber-600 font-medium">Parent Training Target</p>
+                    <p className="text-lg font-bold text-amber-700">{client.bcbaParentTrainingHours || 0} hrs</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Monthly Verified Hours */}
+              {(() => {
+                // Generate month options (last 6 months)
+                const monthOptions = [];
+                for (let i = 0; i < 6; i++) {
+                  const d = new Date();
+                  d.setMonth(d.getMonth() - i);
+                  const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+                  monthOptions.push({ key, label: formatMonth(key) });
+                }
+
+                // Get records for selected month
+                const monthRecords = weeklyRecords.filter(r => getMonthKey(r.weekStart) === selectedMonth);
+                
+                let totalScheduled = 0;
+                let totalActual = 0;
+                let totalSupervision = 0;
+                let totalParentTraining = 0;
+                const therapistTotals = {};
+                
+                monthRecords.forEach(record => {
+                  totalParentTraining += parseFloat(record.parentTrainingHours) || 0;
+                  
+                  record.therapistHours?.forEach(th => {
+                    totalScheduled += th.scheduled || 0;
+                    totalActual += th.actual || 0;
+                    totalSupervision += parseFloat(th.supervisionHours) || 0;
+                    
+                    if (!therapistTotals[th.therapistId]) {
+                      therapistTotals[th.therapistId] = { name: th.name, scheduled: 0, actual: 0, supervision: 0 };
+                    }
+                    therapistTotals[th.therapistId].scheduled += th.scheduled || 0;
+                    therapistTotals[th.therapistId].actual += th.actual || 0;
+                    therapistTotals[th.therapistId].supervision += parseFloat(th.supervisionHours) || 0;
+                  });
+                });
+
+                const percentDelivered = totalScheduled > 0 
+                  ? Math.round((totalActual / totalScheduled) * 100) 
+                  : 0;
+                const supervisionTarget = parseFloat(client.bcbaSupervisionHours) || 0;
+                const parentTrainingTarget = parseFloat(client.bcbaParentTrainingHours) || 0;
+
+                return (
+                  <div className="border border-gray-200 rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-semibold text-gray-800 flex items-center">
+                        <CheckSquare size={18} className="mr-2 text-gray-500" />
+                        Verified Hours
+                      </h3>
+                      <select
+                        value={selectedMonth}
+                        onChange={e => setSelectedMonth(e.target.value)}
+                        className="px-2 py-1 border border-gray-300 rounded text-sm"
+                      >
+                        {monthOptions.map(opt => (
+                          <option key={opt.key} value={opt.key}>{opt.label}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {monthRecords.length === 0 ? (
+                      <p className="text-gray-400 text-sm text-center py-4">
+                        No verified hours for this month yet.
+                        <br />
+                        <span className="text-xs">Use the Hours tab to verify weekly hours.</span>
+                      </p>
+                    ) : (
+                      <div className="space-y-3">
+                        {/* Hours Summary */}
+                        <div className="grid grid-cols-2 gap-3">
+                          <div className="bg-blue-50 rounded-lg p-3">
+                            <p className="text-xs text-blue-600 font-medium">Delivered</p>
+                            <p className="text-lg font-bold text-blue-700">{totalActual.toFixed(1)} hrs</p>
+                            <div className="mt-1 h-1.5 bg-blue-200 rounded-full overflow-hidden">
+                              <div 
+                                className={`h-full rounded-full ${percentDelivered >= 90 ? 'bg-green-500' : percentDelivered >= 70 ? 'bg-amber-500' : 'bg-red-500'}`}
+                                style={{ width: `${Math.min(percentDelivered, 100)}%` }}
+                              />
+                            </div>
+                            <p className="text-xs text-blue-500 mt-1">{percentDelivered}% of scheduled</p>
+                          </div>
+                          <div className="bg-gray-50 rounded-lg p-3">
+                            <p className="text-xs text-gray-600 font-medium">Cancelled</p>
+                            <p className="text-lg font-bold text-gray-700">{(totalScheduled - totalActual).toFixed(1)} hrs</p>
+                            <p className="text-xs text-gray-500 mt-1">
+                              {totalScheduled > 0 
+                                ? `${Math.round(((totalScheduled - totalActual) / totalScheduled) * 100)}% rate`
+                                : '0% rate'}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* BCBA Services */}
+                        {(totalSupervision > 0 || totalParentTraining > 0) && (
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-purple-50 rounded-lg p-3">
+                              <p className="text-xs text-purple-600 font-medium">Supervision</p>
+                              <p className="text-lg font-bold text-purple-700">{totalSupervision.toFixed(1)} hrs</p>
+                              {supervisionTarget > 0 && (
+                                <p className="text-xs text-purple-500">Target: {supervisionTarget}/mo</p>
+                              )}
+                              {totalActual > 0 && (
+                                <p className="text-xs text-purple-600 mt-1">
+                                  {((totalSupervision / totalActual) * 100).toFixed(1)}% ratio
+                                </p>
+                              )}
+                            </div>
+                            <div className="bg-amber-50 rounded-lg p-3">
+                              <p className="text-xs text-amber-600 font-medium">Parent Training</p>
+                              <p className="text-lg font-bold text-amber-700">{totalParentTraining.toFixed(1)} hrs</p>
+                              {parentTrainingTarget > 0 && (
+                                <p className="text-xs text-amber-500">Target: {parentTrainingTarget}/mo</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Therapist Breakdown */}
+                        {Object.values(therapistTotals).length > 0 && (
+                          <div>
+                            <p className="text-xs text-gray-500 mb-2">By Therapist</p>
+                            {Object.values(therapistTotals).map((th, idx) => (
+                              <div key={idx} className="flex justify-between text-sm py-1 border-b border-gray-100 last:border-0">
+                                <span className="text-gray-600">{th.name}</span>
+                                <div className="text-right">
+                                  <span className="font-medium">{th.actual.toFixed(1)}</span>
+                                  <span className="text-gray-400 text-xs ml-1">/ {th.scheduled.toFixed(1)}</span>
+                                  {th.supervision > 0 && th.actual > 0 && (
+                                    <span className="text-purple-600 text-xs ml-2">({((th.supervision / th.actual) * 100).toFixed(0)}% sup)</span>
+                                  )}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        <p className="text-xs text-gray-400 text-center">
+                          {monthRecords.length} week{monthRecords.length !== 1 ? 's' : ''} verified
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+
+              {/* Insurance Info */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <h3 className="font-semibold text-gray-800 mb-3">Insurance & Authorization</h3>
+                <div className="space-y-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Provider</span>
+                    <span className="text-gray-800 font-medium">{client.insuranceProvider || 'Not specified'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Reauth Report Due</span>
+                    <span className="text-gray-800 font-medium">
+                      {client.authEndDate ? new Date(client.authEndDate).toLocaleDateString() : 'Not specified'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-gray-500">Reminder</span>
+                    <span className="text-gray-800 font-medium">
+                      {client.reauthReminderDays === '14' && '2 weeks before'}
+                      {client.reauthReminderDays === '21' && '3 weeks before'}
+                      {client.reauthReminderDays === '30' && '1 month before'}
+                      {client.reauthReminderDays === '60' && '2 months before'}
+                      {!client.reauthReminderDays && '1 month before'}
+                    </span>
+                  </div>
+                  {client.authEndDate && (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      {(() => {
+                        const authEnd = new Date(client.authEndDate);
+                        const today = new Date();
+                        const daysUntil = Math.ceil((authEnd - today) / (1000 * 60 * 60 * 24));
+                        const reminderDays = parseInt(client.reauthReminderDays || '30');
+                        const isUrgent = daysUntil <= reminderDays;
+                        
+                        return (
+                          <div className={`flex items-center justify-between p-2 rounded-lg ${isUrgent ? 'bg-red-50' : 'bg-gray-50'}`}>
+                            <span className={`text-sm ${isUrgent ? 'text-red-700 font-medium' : 'text-gray-600'}`}>
+                              {daysUntil <= 0 
+                                ? '⚠️ Reauth report overdue!' 
+                                : isUrgent 
+                                  ? `⚠️ Reauth due in ${daysUntil} days`
+                                  : `${daysUntil} days until reauth due`
+                              }
+                            </span>
+                          </div>
+                        );
+                      })()}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Therapists & Direct Sessions */}
+              <div className="border border-gray-200 rounded-lg p-4">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-semibold text-gray-800 flex items-center">
+                    <Users size={18} className="mr-2 text-gray-500" />
+                    Therapists & Schedules
+                  </h3>
+                  <button
+                    onClick={() => {
+                      setEditingTherapist(null);
+                      setShowTherapistForm(true);
+                    }}
+                    className="text-indigo-600 text-sm font-medium flex items-center"
+                  >
+                    <Plus size={16} className="mr-1" />
+                    Add
+                  </button>
+                </div>
+
+                {(client.therapists || []).length === 0 ? (
+                  <p className="text-gray-400 text-sm text-center py-4">No therapists assigned yet</p>
+                ) : (
+                  <div className="space-y-3">
+                    {client.therapists.map(therapist => (
+                      <div key={therapist.id} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                        <div className="flex items-center justify-between mb-2">
+                          <div>
+                            <p className="font-medium text-gray-800">{therapist.name}</p>
+                            <p className="text-xs text-gray-500">{therapist.credential} • {calculateTherapistHours(therapist)} hrs/week</p>
+                          </div>
+                          <div className="flex space-x-1">
+                            <button
+                              onClick={() => {
+                                setEditingTherapist(therapist);
+                                setShowTherapistForm(true);
+                              }}
+                              className="p-1.5 text-gray-500 hover:bg-gray-200 rounded"
+                            >
+                              <Edit size={16} />
+                            </button>
+                            <button
+                              onClick={() => handleDeleteTherapist(therapist.id)}
+                              className="p-1.5 text-red-500 hover:bg-red-100 rounded"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </div>
+                        {therapist.sessions?.length > 0 && (
+                          <div className="flex flex-wrap gap-1.5">
+                            {therapist.sessions.map(session => (
+                              <span key={session.id} className="text-xs bg-white border border-gray-200 text-gray-600 px-2 py-1 rounded">
+                                {session.day.slice(0, 3)} {formatTimeShort(session.startTime)}-{formatTimeShort(session.endTime)}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* BCBA Appointments for this client */}
+              {appointments.length > 0 && (
+                <div className="border border-gray-200 rounded-lg p-4">
+                  <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
+                    <Calendar size={18} className="mr-2 text-gray-500" />
+                    Upcoming BCBA Sessions
+                  </h3>
+                  <div className="space-y-2">
+                    {appointments
+                      .filter(a => new Date(a.date) >= new Date(new Date().setHours(0,0,0,0)))
+                      .sort((a, b) => new Date(a.date) - new Date(b.date))
+                      .slice(0, 5)
+                      .map(apt => {
+                        const typeConfig = SESSION_TYPES[apt.type];
+                        const therapist = client.therapists?.find(t => t.id === apt.therapistId);
+                        return (
+                          <div key={apt.id} className={`${typeConfig.lightBg} ${typeConfig.border} border rounded-lg p-3`}>
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className={`font-medium ${typeConfig.text}`}>{typeConfig.label}</p>
+                                <p className="text-sm text-gray-600">
+                                  {new Date(apt.date).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+                                  {' • '}
+                                  {formatTimeShort(apt.startTime)}-{formatTimeShort(apt.endTime)}
+                                </p>
+                                {therapist && (
+                                  <p className="text-xs text-gray-500 mt-1">w/ {therapist.name}</p>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Therapist Form Modal */}
+      {showTherapistForm && (
+        <TherapistForm
+          therapist={editingTherapist}
+          onSave={handleSaveTherapist}
+          onCancel={() => {
+            setShowTherapistForm(false);
+            setEditingTherapist(null);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+// Client Form Component
+function ClientForm({ client, onSave, onCancel }) {
+  const [formData, setFormData] = useState(client || {
+    clientName: '',
+    address: '',
+    serviceLocations: [],
+    parentName: '',
+    parentPhone: '',
+    parentEmail: '',
+    authorizedHours: '',
+    bcbaSupervisionHours: '',
+    bcbaParentTrainingHours: '',
+    insuranceProvider: '',
+    authEndDate: '',
+    reauthReminderDays: '30',
+    notes: '',
+    therapists: []
+  });
+  
+  const [showTherapistForm, setShowTherapistForm] = useState(false);
+  const [editingTherapist, setEditingTherapist] = useState(null);
+  const [showLocationForm, setShowLocationForm] = useState(false);
+  const [editingLocation, setEditingLocation] = useState(null);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onSave(formData);
+  };
+
+  const handleSaveLocation = (locationData) => {
+    let updatedLocations;
+    if (locationData.id) {
+      updatedLocations = formData.serviceLocations.map(l => 
+        l.id === locationData.id ? locationData : l
+      );
+    } else {
+      const newLocation = { ...locationData, id: generateId() };
+      updatedLocations = [...(formData.serviceLocations || []), newLocation];
+    }
+    setFormData({ ...formData, serviceLocations: updatedLocations });
+    setShowLocationForm(false);
+    setEditingLocation(null);
+  };
+
+  const handleDeleteLocation = (locationId) => {
+    const updatedLocations = formData.serviceLocations.filter(l => l.id !== locationId);
+    setFormData({ ...formData, serviceLocations: updatedLocations });
+  };
+
+  const handleSaveTherapist = (therapistData) => {
+    let updatedTherapists;
+    if (therapistData.id) {
+      updatedTherapists = formData.therapists.map(t => 
+        t.id === therapistData.id ? therapistData : t
+      );
+    } else {
+      const newTherapist = { ...therapistData, id: generateId(), sessions: therapistData.sessions || [] };
+      updatedTherapists = [...(formData.therapists || []), newTherapist];
+    }
+    setFormData({ ...formData, therapists: updatedTherapists });
+    setShowTherapistForm(false);
+    setEditingTherapist(null);
+  };
+
+  const handleDeleteTherapist = (therapistId) => {
+    const updatedTherapists = formData.therapists.filter(t => t.id !== therapistId);
+    setFormData({ ...formData, therapists: updatedTherapists });
+  };
+
+  const calculateTherapistHours = (therapist) => {
+    let weeklyMinutes = 0;
+    therapist.sessions?.forEach(session => {
+      const [startH, startM] = session.startTime.split(':').map(Number);
+      const [endH, endM] = session.endTime.split(':').map(Number);
+      weeklyMinutes += (endH * 60 + endM) - (startH * 60 + startM);
+    });
+    return (weeklyMinutes / 60).toFixed(1);
+  };
+
+  const totalScheduledHours = (formData.therapists || []).reduce((sum, t) => 
+    sum + parseFloat(calculateTherapistHours(t)), 0
+  );
+
+  return (
+    <>
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-bold text-gray-800">
+            {client ? 'Edit Client' : 'New Client'}
+          </h2>
+          <button type="button" onClick={onCancel} className="text-gray-500">
+            <X size={24} />
+          </button>
+        </div>
+
+        {/* Client Info Section */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 space-y-4">
+          <h3 className="font-semibold text-gray-700 flex items-center">
+            <UserCircle size={18} className="mr-2 text-gray-500" />
+            Client Information
+          </h3>
+          
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Client Name/Initials *</label>
+            <input
+              type="text"
+              required
+              value={formData.clientName}
+              onChange={e => setFormData({...formData, clientName: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+              placeholder="e.g., John Smith or JS"
+            />
+          </div>
+        </div>
+
+        {/* Parent/Caregiver Section */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 space-y-4">
+          <h3 className="font-semibold text-gray-700 flex items-center">
+            <Home size={18} className="mr-2 text-gray-500" />
+            Parent/Caregiver
+          </h3>
+          
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Name *</label>
+            <input
+              type="text"
+              required
+              value={formData.parentName}
+              onChange={e => setFormData({...formData, parentName: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Phone *</label>
+            <input
+              type="tel"
+              required
+              value={formData.parentPhone}
+              onChange={e => setFormData({...formData, parentPhone: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm text-gray-600 mb-1">Email</label>
+            <input
+              type="email"
+              value={formData.parentEmail}
+              onChange={e => setFormData({...formData, parentEmail: e.target.value})}
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            />
+          </div>
+        </div>
+
+        {/* Service Locations Section */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-gray-700 flex items-center">
+              <MapPin size={18} className="mr-2 text-gray-500" />
+              Service Locations
+            </h3>
+            <button
+              type="button"
+              onClick={() => {
+                setEditingLocation(null);
+                setShowLocationForm(true);
+              }}
+              className="text-indigo-600 text-sm font-medium flex items-center"
+            >
+              <Plus size={16} className="mr-1" />
+              Add Location
+            </button>
+          </div>
+
+          {(formData.serviceLocations || []).length === 0 ? (
+            <p className="text-gray-400 text-sm text-center py-4">No service locations added yet. Click "Add Location" to add an address.</p>
+          ) : (
+            <div className="space-y-2">
+              {formData.serviceLocations.map((location, index) => (
+                <div key={location.id} className="flex items-start justify-between p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <div className="flex-1">
+                    <p className="font-medium text-gray-800 text-sm">{location.name || `Location ${index + 1}`}</p>
+                    <p className="text-gray-500 text-xs">{location.address}</p>
+                  </div>
+                  <div className="flex space-x-1 ml-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingLocation(location);
+                        setShowLocationForm(true);
+                      }}
+                      className="p-1.5 text-gray-500 hover:bg-gray-200 rounded"
+                    >
+                      <Edit size={14} />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteLocation(location.id)}
+                      className="p-1.5 text-red-500 hover:bg-red-100 rounded"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Notes Section */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+          <h3 className="font-semibold text-gray-700 flex items-center mb-3">
+            <FileText size={18} className="mr-2 text-gray-500" />
+            Notes
+          </h3>
+          <textarea
+            value={formData.notes}
+            onChange={e => setFormData({...formData, notes: e.target.value})}
+            rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+            placeholder="Clinical notes, preferences, etc."
+          />
+        </div>
+
+        {/* Treatment Delivery Section */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 space-y-4 overflow-hidden">
+          <h3 className="font-semibold text-gray-700 flex items-center">
+            <ClipboardList size={18} className="mr-2 text-gray-500" />
+            Treatment Delivery
+          </h3>
+          
+          {/* Direct Service Hours */}
+          <div className="border-b border-gray-200 pb-4">
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Direct Service (RBT)</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Target Hours/Week *</label>
+                <input
+                  type="number"
+                  required
+                  min="0"
+                  step="0.5"
+                  value={formData.authorizedHours}
+                  onChange={e => setFormData({...formData, authorizedHours: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="e.g., 25"
+                />
+              </div>
+              <div className="flex items-end">
+                <div className="w-full bg-gray-50 rounded-lg p-2 text-center">
+                  <p className="text-xs text-gray-500">Scheduled</p>
+                  <p className="text-lg font-bold text-emerald-600">{totalScheduledHours.toFixed(1)} hrs/wk</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* BCBA Hours */}
+          <div className="border-b border-gray-200 pb-4">
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">BCBA Services (Monthly)</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Supervision Hours/Month</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  value={formData.bcbaSupervisionHours}
+                  onChange={e => setFormData({...formData, bcbaSupervisionHours: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="e.g., 8"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Parent Training Hours/Month</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  value={formData.bcbaParentTrainingHours}
+                  onChange={e => setFormData({...formData, bcbaParentTrainingHours: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  placeholder="e.g., 4"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Insurance & Authorization */}
+          <div>
+            <p className="text-xs text-gray-500 uppercase tracking-wide mb-2">Insurance & Authorization</p>
+            <div className="space-y-3">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Insurance Provider *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.insuranceProvider}
+                  onChange={e => setFormData({...formData, insuranceProvider: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                />
+              </div>
+
+              <div className="flex flex-col">
+                <label className="block text-sm text-gray-600 mb-1">Reauth Report Due *</label>
+                <div className="flex">
+                  <input
+                    type="date"
+                    required
+                    value={formData.authEndDate}
+                    onChange={e => setFormData({...formData, authEndDate: e.target.value})}
+                    className="flex-1 min-w-0 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Reminder</label>
+                <select
+                  value={formData.reauthReminderDays}
+                  onChange={e => setFormData({...formData, reauthReminderDays: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                >
+                  <option value="14">2 weeks before</option>
+                  <option value="21">3 weeks before</option>
+                  <option value="30">1 month before</option>
+                  <option value="60">2 months before</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Therapists Section */}
+        <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-gray-700 flex items-center">
+              <Users size={18} className="mr-2 text-gray-500" />
+              Therapists & Schedules
+            </h3>
+            <button
+              type="button"
+              onClick={() => {
+                setEditingTherapist(null);
+                setShowTherapistForm(true);
+              }}
+              className="text-indigo-600 text-sm font-medium flex items-center"
+            >
+              <Plus size={16} className="mr-1" />
+              Add Therapist
+            </button>
+          </div>
+
+          {(formData.therapists || []).length === 0 ? (
+            <p className="text-gray-400 text-sm text-center py-4">No therapists added yet. Click "Add Therapist" to assign staff.</p>
+          ) : (
+            <div className="space-y-3">
+              {formData.therapists.map(therapist => (
+                <div key={therapist.id} className="border border-gray-200 rounded-lg p-3 bg-gray-50">
+                  <div className="flex items-center justify-between mb-2">
+                    <div>
+                      <p className="font-medium text-gray-800">{therapist.name}</p>
+                      <p className="text-xs text-gray-500">{therapist.credential} • {calculateTherapistHours(therapist)} hrs/week</p>
+                    </div>
+                    <div className="flex space-x-1">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setEditingTherapist(therapist);
+                          setShowTherapistForm(true);
+                        }}
+                        className="p-1.5 text-gray-500 hover:bg-gray-200 rounded"
+                      >
+                        <Edit size={16} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteTherapist(therapist.id)}
+                        className="p-1.5 text-red-500 hover:bg-red-100 rounded"
+                      >
+                        <Trash2 size={16} />
+                      </button>
+                    </div>
+                  </div>
+                  {therapist.sessions?.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {therapist.sessions.map(session => (
+                        <span key={session.id} className="text-xs bg-white border border-gray-200 text-gray-600 px-2 py-1 rounded">
+                          {session.day.slice(0, 3)} {formatTimeShort(session.startTime)}-{formatTimeShort(session.endTime)}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        <div className="flex space-x-3 pt-2">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center"
+          >
+            <Save size={18} className="mr-2" />
+            {client ? 'Update' : 'Add Client'}
+          </button>
+        </div>
+      </form>
+
+      {/* Therapist Form Modal */}
+      {showTherapistForm && (
+        <TherapistForm
+          therapist={editingTherapist}
+          onSave={handleSaveTherapist}
+          onCancel={() => {
+            setShowTherapistForm(false);
+            setEditingTherapist(null);
+          }}
+        />
+      )}
+
+      {/* Location Form Modal */}
+      {showLocationForm && (
+        <LocationForm
+          location={editingLocation}
+          onSave={handleSaveLocation}
+          onCancel={() => {
+            setShowLocationForm(false);
+            setEditingLocation(null);
+          }}
+        />
+      )}
+    </>
+  );
+}
+
+// Therapist Form Component
+function TherapistForm({ therapist, onSave, onCancel }) {
+  const [formData, setFormData] = useState(therapist || {
+    name: '',
+    credential: 'RBT',
+    sessions: []
+  });
+  const [showSessionForm, setShowSessionForm] = useState(false);
+  const [editingSession, setEditingSession] = useState(null);
+
+  const handleAddSession = (sessionData) => {
+    if (editingSession) {
+      // Editing a single session
+      setFormData({
+        ...formData,
+        sessions: formData.sessions.map(s => s.id === editingSession.id ? sessionData : s)
+      });
+    } else {
+      // Adding new session(s) - sessionData is an array when multi-select
+      const newSessions = Array.isArray(sessionData) 
+        ? sessionData.map(s => ({ ...s, id: generateId() }))
+        : [{ ...sessionData, id: generateId() }];
+      
+      setFormData({
+        ...formData,
+        sessions: [...formData.sessions, ...newSessions]
+      });
+    }
+    setShowSessionForm(false);
+    setEditingSession(null);
+  };
+
+  const handleRemoveSession = (sessionId) => {
+    setFormData({
+      ...formData,
+      sessions: formData.sessions.filter(s => s.id !== sessionId)
+    });
+  };
+
+  const handleSubmit = () => {
+    if (!formData.name.trim()) return;
+    onSave(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60]">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
+      
+      {/* Scrollable area - has padding for bottom nav */}
+      <div 
+        className="absolute inset-0 overflow-y-auto"
+        style={{ paddingBottom: '80px' }}
+      >
+        {/* Spacer to push modal down */}
+        <div className="h-16" onClick={onCancel} />
+        
+        {/* Modal */}
+        <div 
+          className="bg-white rounded-t-2xl min-h-[300px]"
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-white sticky top-0 rounded-t-2xl">
+            <h3 className="text-lg font-bold text-gray-800">
+              {therapist ? 'Edit Therapist' : 'Add Therapist'}
+            </h3>
+            <button type="button" onClick={onCancel} className="text-gray-500 p-1">
+              <X size={24} />
+            </button>
+          </div>
+
+          {/* Form Content */}
+          <div className="p-4 space-y-4">
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Name *</label>
+              <input
+                type="text"
+                required
+                value={formData.name}
+                onChange={e => setFormData({...formData, name: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Credential</label>
+              <select
+                value={formData.credential}
+                onChange={e => setFormData({...formData, credential: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="RBT">RBT</option>
+                <option value="BCaBA">BCaBA</option>
+                <option value="BCBA">BCBA</option>
+                <option value="BT">BT (Non-certified)</option>
+              </select>
+            </div>
+
+            {/* Weekly Sessions */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm text-gray-600">Weekly Schedule</label>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingSession(null);
+                    setShowSessionForm(true);
+                  }}
+                  className="text-indigo-600 text-sm font-medium flex items-center"
+                >
+                  <Plus size={16} className="mr-1" />
+                  Add Session
+                </button>
+              </div>
+              
+              {formData.sessions.length === 0 ? (
+                <p className="text-gray-400 text-sm text-center py-3 bg-gray-50 rounded-lg">
+                  No sessions added yet
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {formData.sessions.map(session => (
+                    <div key={session.id} className="flex items-center justify-between bg-gray-50 rounded-lg p-3">
+                      <div>
+                        <p className="font-medium text-gray-700">{session.day}</p>
+                        <p className="text-sm text-gray-500">
+                          {formatTime(session.startTime)} - {formatTime(session.endTime)}
+                        </p>
+                      </div>
+                      <div className="flex space-x-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditingSession(session);
+                            setShowSessionForm(true);
+                          }}
+                          className="p-1.5 text-gray-500 hover:bg-gray-200 rounded"
+                        >
+                          <Edit size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveSession(session.id)}
+                          className="p-1.5 text-red-500 hover:bg-red-100 rounded"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Buttons */}
+            <div className="flex space-x-3 pt-2 pb-4">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-medium"
+              >
+                {therapist ? 'Update' : 'Add Therapist'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Session Form Modal */}
+      {showSessionForm && (
+        <div 
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-[100]"
+          onClick={() => {
+            setShowSessionForm(false);
+            setEditingSession(null);
+          }}
+        >
+          <div 
+            className="bg-white rounded-xl w-full max-w-sm mx-4 p-5"
+            onClick={e => e.stopPropagation()}
+          >
+            <SessionForm
+              session={editingSession}
+              onSave={handleAddSession}
+              onCancel={() => {
+                setShowSessionForm(false);
+                setEditingSession(null);
+              }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Location Form Component (for service locations)
+function LocationForm({ location, onSave, onCancel }) {
+  const [formData, setFormData] = useState(location || {
+    name: '',
+    address: ''
+  });
+
+  const handleSubmit = () => {
+    if (!formData.address.trim()) return;
+    onSave(formData);
+  };
+
+  return (
+    <div className="fixed inset-0 z-[70]">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
+      
+      {/* Modal */}
+      <div className="absolute inset-0 overflow-y-auto" style={{ paddingBottom: '80px' }}>
+        <div className="h-8" onClick={onCancel} />
+        <div className="bg-white rounded-t-2xl min-h-[250px] relative mx-0">
+          <div className="p-5 space-y-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-lg font-bold text-gray-800">
+                {location ? 'Edit Location' : 'Add Service Location'}
+              </h3>
+              <button onClick={onCancel} className="text-gray-500">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Location Name</label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={e => setFormData({...formData, name: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="e.g., Home, Clinic, School"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Address *</label>
+              <input
+                type="text"
+                value={formData.address}
+                onChange={e => setFormData({...formData, address: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500"
+                placeholder="123 Main St, City, State ZIP"
+              />
+            </div>
+
+            <div className="flex space-x-3 pt-2">
+              <button
+                type="button"
+                onClick={onCancel}
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-medium"
+              >
+                {location ? 'Update' : 'Add Location'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Session Form Component (for therapist weekly schedule)
+function SessionForm({ session, onSave, onCancel }) {
+  // When editing, use single day; when adding new, use multi-select
+  const [selectedDays, setSelectedDays] = useState(session ? [session.day] : []);
+  const [formData, setFormData] = useState({
+    startTime: session?.startTime || '09:00',
+    endTime: session?.endTime || '12:00'
+  });
+
+  const toggleDay = (day) => {
+    if (session) return; // Don't allow changing day when editing
+    setSelectedDays(prev => 
+      prev.includes(day) 
+        ? prev.filter(d => d !== day)
+        : [...prev, day]
+    );
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (selectedDays.length === 0) return;
+    
+    if (session) {
+      // Editing - return single session with original day
+      onSave({ ...formData, day: session.day, id: session.id });
+    } else {
+      // Adding new - return array of sessions for each selected day
+      const sessions = selectedDays.map(day => ({
+        ...formData,
+        day
+      }));
+      onSave(sessions);
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <h4 className="font-semibold text-gray-800">
+        {session ? 'Edit Session' : 'Add Session(s)'}
+      </h4>
+
+      <div>
+        <label className="block text-sm text-gray-600 mb-2">
+          {session ? 'Day' : 'Select Days'}
+        </label>
+        {session ? (
+          // When editing, show read-only day
+          <div className="px-3 py-2 bg-gray-100 rounded-lg text-gray-700">
+            {session.day}
+          </div>
+        ) : (
+          // When adding, show multi-select checkboxes
+          <div className="flex flex-wrap gap-2">
+            {DAYS_OF_WEEK.map(day => (
+              <button
+                key={day}
+                type="button"
+                onClick={() => toggleDay(day)}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  selectedDays.includes(day)
+                    ? 'bg-indigo-600 text-white'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                }`}
+              >
+                {day.substring(0, 3)}
+              </button>
+            ))}
+          </div>
+        )}
+        {!session && selectedDays.length === 0 && (
+          <p className="text-xs text-red-500 mt-1">Please select at least one day</p>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <label className="block text-sm text-gray-600 mb-1">Start Time</label>
+          <input
+            type="time"
+            value={formData.startTime}
+            onChange={e => setFormData({...formData, startTime: e.target.value})}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+          />
+        </div>
+        <div>
+          <label className="block text-sm text-gray-600 mb-1">End Time</label>
+          <input
+            type="time"
+            value={formData.endTime}
+            onChange={e => setFormData({...formData, endTime: e.target.value})}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+          />
+        </div>
+      </div>
+
+      <div className="flex space-x-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 py-2 border border-gray-300 text-gray-700 rounded-lg"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={selectedDays.length === 0}
+          className={`flex-1 py-2 rounded-lg ${
+            selectedDays.length === 0 
+              ? 'bg-gray-300 text-gray-500' 
+              : 'bg-indigo-600 text-white'
+          }`}
+        >
+          {session ? 'Update' : `Add ${selectedDays.length > 1 ? `${selectedDays.length} Sessions` : 'Session'}`}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// Calendar View Component
+function CalendarView({ 
+  currentDate, 
+  view, 
+  appointments, 
+  clients,
+  onViewChange, 
+  onPrevious, 
+  onNext, 
+  onToday,
+  onDateSelect,
+  onNewAppointment,
+  onEditAppointment
+}) {
+  const weekDates = getWeekDates(currentDate);
+  const today = new Date();
+  const todayString = getDateString(today);
+
+  // Get appointments for a specific date
+  const getAppointmentsForDate = (date) => {
+    const dateString = getDateString(date);
+    return appointments.filter(a => a.date === dateString);
+  };
+
+  // Get time position for an appointment (for positioning in the grid)
+  const getTimePosition = (time) => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return ((hours - 7) * 60 + minutes) / 60; // Hours from 7 AM
+  };
+
+  const getAppointmentHeight = (startTime, endTime) => {
+    const start = getTimePosition(startTime);
+    const end = getTimePosition(endTime);
+    return end - start;
+  };
+
+  // Render a single appointment block
+  const renderAppointment = (apt, compact = false) => {
+    const typeConfig = SESSION_TYPES[apt.type];
+    const client = clients.find(c => c.id === apt.clientId);
+    const therapist = client?.therapists?.find(t => t.id === apt.therapistId);
+    
+    if (compact) {
+      return (
+        <button
+          key={apt.id}
+          onClick={(e) => {
+            e.stopPropagation();
+            onEditAppointment(apt);
+          }}
+          className={`${typeConfig.color} text-white text-xs p-1 rounded truncate w-full text-left mb-0.5`}
+        >
+          {formatTimeShort(apt.startTime)} {client ? getClientInitials(client) : typeConfig.label}
+        </button>
+      );
+    }
+
+    return (
+      <button
+        key={apt.id}
+        onClick={(e) => {
+          e.stopPropagation();
+          onEditAppointment(apt);
+        }}
+        className={`${typeConfig.lightBg} ${typeConfig.border} border-l-4 ${typeConfig.text} p-2 rounded-r text-left w-full hover:shadow-md transition-shadow`}
+        style={{
+          position: 'absolute',
+          top: `${getTimePosition(apt.startTime) * 48}px`,
+          height: `${getAppointmentHeight(apt.startTime, apt.endTime) * 48 - 2}px`,
+          left: '4px',
+          right: '4px'
+        }}
+      >
+        <p className="font-medium text-sm truncate">
+          {client ? getClientInitials(client) : typeConfig.label}
+        </p>
+        <p className="text-xs opacity-75">
+          {formatTimeShort(apt.startTime)}-{formatTimeShort(apt.endTime)}
+        </p>
+        {therapist && (
+          <p className="text-xs opacity-75 truncate">w/ {therapist.name}</p>
+        )}
+      </button>
+    );
+  };
+
+  return (
+    <div className="space-y-4">
+      {/* Calendar Header */}
+      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        {/* View Toggle & Navigation */}
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={onPrevious}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <button
+              onClick={onToday}
+              className="px-3 py-1.5 text-sm font-medium text-indigo-600 hover:bg-indigo-50 rounded-lg"
+            >
+              Today
+            </button>
+            <button
+              onClick={onNext}
+              className="p-2 hover:bg-gray-100 rounded-lg"
+            >
+              <ChevronRight size={20} />
+            </button>
+          </div>
+          
+          <div className="flex bg-gray-100 rounded-lg p-1">
+            <button
+              onClick={() => onViewChange('day')}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                view === 'day' ? 'bg-white shadow-sm font-medium' : 'text-gray-600'
+              }`}
+            >
+              Day
+            </button>
+            <button
+              onClick={() => onViewChange('week')}
+              className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                view === 'week' ? 'bg-white shadow-sm font-medium' : 'text-gray-600'
+              }`}
+            >
+              Week
+            </button>
+          </div>
+        </div>
+
+        {/* Date Display */}
+        <div className="text-center">
+          {view === 'day' ? (
+            <h2 className="text-lg font-semibold text-gray-800">
+              {formatFullDate(currentDate)}
+            </h2>
+          ) : (
+            <h2 className="text-lg font-semibold text-gray-800">
+              {formatDate(weekDates[0])} - {formatDate(weekDates[4])}, {weekDates[0].getFullYear()}
+            </h2>
+          )}
+        </div>
+      </div>
+
+      {/* Calendar Grid */}
+      {view === 'week' ? (
+        /* Weekly View - Condensed M-F */
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          {/* Day Headers */}
+          <div className="flex border-b border-gray-200">
+            <div className="p-2 text-xs text-gray-400 border-r border-gray-100 w-14 flex-shrink-0"></div>
+            {weekDates.map((date, idx) => {
+              const isToday = getDateString(date) === todayString;
+              return (
+                <button
+                  key={idx}
+                  onClick={() => onDateSelect(date)}
+                  className={`flex-1 p-2 text-center hover:bg-gray-50 border-r border-gray-100 ${
+                    isToday ? 'bg-indigo-50' : ''
+                  }`}
+                >
+                  <p className={`text-xs font-medium ${isToday ? 'text-indigo-600' : 'text-gray-500'}`}>
+                    {DAYS_SHORT[idx]}
+                  </p>
+                  <p className={`text-lg font-semibold ${isToday ? 'text-indigo-600' : 'text-gray-800'}`}>
+                    {date.getDate()}
+                  </p>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Time Grid with Appointments Overlay */}
+          <div className="overflow-y-auto max-h-[calc(100vh-320px)]">
+            <div className="relative" style={{ minHeight: `${TIME_SLOTS.length * 48}px` }}>
+              {/* Grid lines */}
+              {TIME_SLOTS.map((time, timeIdx) => (
+                <div key={time} className="flex border-b border-gray-100" style={{ height: '48px' }}>
+                  <div className="p-1 text-xs text-gray-400 text-right pr-2 border-r border-gray-100 w-14 flex-shrink-0">
+                    {formatTimeShort(time)}
+                  </div>
+                  {weekDates.map((date, dayIdx) => (
+                    <button
+                      key={dayIdx}
+                      onClick={() => onNewAppointment(new Date(date), time)}
+                      className="flex-1 border-r border-gray-100 hover:bg-gray-50"
+                    />
+                  ))}
+                </div>
+              ))}
+              
+              {/* Appointments Overlay - one column per day */}
+              <div className="absolute top-0 left-14 right-0 bottom-0 flex pointer-events-none">
+                {weekDates.map((date, dayIdx) => (
+                  <div key={dayIdx} className="flex-1 relative">
+                    {getAppointmentsForDate(date).map(apt => {
+                      const typeConfig = SESSION_TYPES[apt.type];
+                      const client = clients.find(c => c.id === apt.clientId);
+                      const topPos = getTimePosition(apt.startTime) * 48;
+                      const height = getAppointmentHeight(apt.startTime, apt.endTime) * 48;
+                      
+                      return (
+                        <button
+                          key={apt.id}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditAppointment(apt);
+                          }}
+                          className={`${typeConfig.color} text-white text-xs p-1 rounded text-left pointer-events-auto hover:opacity-90`}
+                          style={{
+                            position: 'absolute',
+                            top: `${topPos}px`,
+                            height: `${Math.max(height - 2, 20)}px`,
+                            left: '2px',
+                            right: '2px',
+                            overflow: 'hidden'
+                          }}
+                        >
+                          <p className="truncate font-medium">
+                            {formatTimeShort(apt.startTime)} {client ? getClientInitials(client) : typeConfig.label}
+                          </p>
+                          {height > 30 && (
+                            <p className="truncate opacity-75">
+                              {formatTimeShort(apt.endTime)}
+                            </p>
+                          )}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : (
+        /* Daily View */
+        <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="overflow-y-auto max-h-[calc(100vh-280px)]">
+            <div className="relative" style={{ minHeight: `${TIME_SLOTS.length * 48}px` }}>
+              {/* Time labels and grid lines */}
+              {TIME_SLOTS.map((time, idx) => (
+                <div key={time} className="flex border-b border-gray-100" style={{ height: '48px' }}>
+                  <div className="w-16 flex-shrink-0 p-2 text-xs text-gray-400 text-right pr-3">
+                    {formatTimeShort(time)}
+                  </div>
+                  <button
+                    onClick={() => onNewAppointment(currentDate, time)}
+                    className="flex-1 hover:bg-gray-50"
+                  />
+                </div>
+              ))}
+              
+              {/* Appointments overlay */}
+              <div className="absolute top-0 left-16 right-0 bottom-0 pointer-events-none">
+                {getAppointmentsForDate(currentDate).map(apt => {
+                  const typeConfig = SESSION_TYPES[apt.type];
+                  const client = clients.find(c => c.id === apt.clientId);
+                  const therapist = client?.therapists?.find(t => t.id === apt.therapistId);
+                  const topPos = getTimePosition(apt.startTime) * 48;
+                  const height = getAppointmentHeight(apt.startTime, apt.endTime) * 48;
+                  
+                  return (
+                    <button
+                      key={apt.id}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEditAppointment(apt);
+                      }}
+                      className={`${typeConfig.lightBg} ${typeConfig.border} border-l-4 ${typeConfig.text} p-2 rounded-r text-left hover:shadow-md transition-shadow pointer-events-auto`}
+                      style={{
+                        position: 'absolute',
+                        top: `${topPos}px`,
+                        height: `${Math.max(height - 2, 44)}px`,
+                        left: '4px',
+                        right: '4px',
+                        overflow: 'hidden'
+                      }}
+                    >
+                      <p className="font-medium text-sm truncate">
+                        {client ? getClientInitials(client) : typeConfig.label}
+                      </p>
+                      <p className="text-xs opacity-75">
+                        {formatTimeShort(apt.startTime)}-{formatTimeShort(apt.endTime)}
+                      </p>
+                      {therapist && height > 60 && (
+                        <p className="text-xs opacity-75 truncate">w/ {therapist.name}</p>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Session Type Legend */}
+      <div className="bg-white rounded-xl p-4 shadow-sm border border-gray-100">
+        <p className="text-xs text-gray-500 mb-2">Session Types</p>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(SESSION_TYPES).map(([key, config]) => (
+            <div key={key} className="flex items-center space-x-1.5">
+              <div className={`w-3 h-3 rounded ${config.color}`}></div>
+              <span className="text-xs text-gray-600">{config.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Hours View Component - shows weekly verification tasks and monthly summaries
+function HoursView({ clients, weeklyRecords, onStartVerification }) {
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
+
+  // Get weeks that need verification (current week and previous weeks without records)
+  const getWeeksToVerify = () => {
+    const weeks = [];
+    const today = new Date();
+    const currentWeekStart = getWeekStart(today);
+    
+    // Go back 4 weeks
+    for (let i = 0; i < 4; i++) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - (i * 7));
+      const weekStart = getWeekStart(d);
+      
+      // Check if all clients have records for this week
+      const clientsWithRecords = weeklyRecords.filter(r => r.weekStart === weekStart).map(r => r.clientId);
+      const clientsWithTherapists = clients.filter(c => c.therapists && c.therapists.length > 0);
+      const allVerified = clientsWithTherapists.every(c => clientsWithRecords.includes(c.id));
+      
+      weeks.push({
+        weekStart,
+        weekEnd: getWeekEnd(d),
+        isCurrentWeek: weekStart === currentWeekStart,
+        allVerified,
+        verifiedCount: clientsWithRecords.length,
+        totalClients: clientsWithTherapists.length
+      });
+    }
+    return weeks;
+  };
+
+  // Get monthly summary data
+  const getMonthlySummary = () => {
+    const [year, month] = selectedMonth.split('-').map(Number);
+    const monthRecords = weeklyRecords.filter(r => {
+      const recordMonth = getMonthKey(r.weekStart);
+      return recordMonth === selectedMonth;
+    });
+
+    const clientSummaries = clients.map(client => {
+      const clientRecords = monthRecords.filter(r => r.clientId === client.id);
+      
+      let totalScheduled = 0;
+      let totalActual = 0;
+      let totalSupervision = 0;
+      let totalParentTraining = 0;
+      const therapistTotals = {};
+      
+      clientRecords.forEach(record => {
+        totalParentTraining += parseFloat(record.parentTrainingHours) || 0;
+        
+        record.therapistHours?.forEach(th => {
+          totalScheduled += th.scheduled || 0;
+          totalActual += th.actual || 0;
+          totalSupervision += parseFloat(th.supervisionHours) || 0;
+          
+          if (!therapistTotals[th.therapistId]) {
+            therapistTotals[th.therapistId] = { name: th.name, scheduled: 0, actual: 0, supervision: 0 };
+          }
+          therapistTotals[th.therapistId].scheduled += th.scheduled || 0;
+          therapistTotals[th.therapistId].actual += th.actual || 0;
+          therapistTotals[th.therapistId].supervision += parseFloat(th.supervisionHours) || 0;
+        });
+      });
+
+      const supervisionTarget = parseFloat(client.bcbaSupervisionHours) || 0;
+      const parentTrainingTarget = parseFloat(client.bcbaParentTrainingHours) || 0;
+
+      return {
+        client,
+        totalScheduled,
+        totalActual,
+        totalSupervision,
+        totalParentTraining,
+        supervisionTarget,
+        parentTrainingTarget,
+        therapistTotals: Object.values(therapistTotals),
+        weeksVerified: clientRecords.length
+      };
+    }).filter(s => s.client.therapists && s.client.therapists.length > 0);
+
+    return clientSummaries;
+  };
+
+  const weeksToVerify = getWeeksToVerify();
+  const monthlySummary = getMonthlySummary();
+
+  // Generate month options (last 6 months)
+  const monthOptions = [];
+  for (let i = 0; i < 6; i++) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - i);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    monthOptions.push({ key, label: formatMonth(key) });
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Weekly Verification Section */}
+      <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <h2 className="font-bold text-gray-800 mb-4 flex items-center">
+          <CheckSquare size={20} className="mr-2 text-indigo-600" />
+          Weekly Hour Verification
+        </h2>
+        
+        <div className="space-y-3">
+          {weeksToVerify.map(week => (
+            <button
+              key={week.weekStart}
+              onClick={() => onStartVerification(week.weekStart)}
+              className={`w-full p-4 rounded-lg border text-left flex items-center justify-between ${
+                week.allVerified 
+                  ? 'bg-green-50 border-green-200' 
+                  : week.isCurrentWeek 
+                    ? 'bg-amber-50 border-amber-200'
+                    : 'bg-red-50 border-red-200'
+              }`}
+            >
+              <div>
+                <p className="font-medium text-gray-800">
+                  {formatWeekRange(week.weekStart)}
+                  {week.isCurrentWeek && <span className="text-amber-600 text-sm ml-2">(Current)</span>}
+                </p>
+                <p className={`text-sm ${week.allVerified ? 'text-green-600' : 'text-gray-500'}`}>
+                  {week.verifiedCount}/{week.totalClients} clients verified
+                </p>
+              </div>
+              <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                week.allVerified 
+                  ? 'bg-green-100 text-green-700' 
+                  : 'bg-gray-100 text-gray-600'
+              }`}>
+                {week.allVerified ? '✓ Complete' : 'Verify →'}
+              </div>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Monthly Summary Section */}
+      <div className="bg-white rounded-xl p-5 shadow-sm border border-gray-100">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="font-bold text-gray-800 flex items-center">
+            <FileText size={20} className="mr-2 text-indigo-600" />
+            Monthly Summary
+          </h2>
+          <select
+            value={selectedMonth}
+            onChange={e => setSelectedMonth(e.target.value)}
+            className="px-3 py-2 border border-gray-300 rounded-lg text-sm"
+          >
+            {monthOptions.map(opt => (
+              <option key={opt.key} value={opt.key}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
+
+        {monthlySummary.length === 0 ? (
+          <p className="text-gray-500 text-center py-8">
+            No clients with therapists assigned
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {monthlySummary.map(summary => {
+              const percentDelivered = summary.totalScheduled > 0 
+                ? Math.round((summary.totalActual / summary.totalScheduled) * 100) 
+                : 0;
+              
+              return (
+                <div key={summary.client.id} className="border border-gray-200 rounded-lg p-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-indigo-100 rounded-full flex items-center justify-center">
+                        <span className="text-indigo-600 font-bold">
+                          {getClientInitials(summary.client)}
+                        </span>
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-800">{getClientInitials(summary.client)}</h3>
+                        <p className="text-xs text-gray-500">{summary.weeksVerified} weeks verified</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Direct Hours */}
+                  <div className="grid grid-cols-2 gap-3 mb-3">
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-500">Direct Hours</p>
+                      <p className="text-lg font-bold text-gray-800">
+                        {summary.totalActual.toFixed(1)} <span className="text-sm font-normal text-gray-500">/ {summary.totalScheduled.toFixed(1)} scheduled</span>
+                      </p>
+                      <div className="mt-1 h-2 bg-gray-200 rounded-full overflow-hidden">
+                        <div 
+                          className={`h-full rounded-full ${percentDelivered >= 90 ? 'bg-green-500' : percentDelivered >= 70 ? 'bg-amber-500' : 'bg-red-500'}`}
+                          style={{ width: `${Math.min(percentDelivered, 100)}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">{percentDelivered}% delivered</p>
+                    </div>
+                    
+                    <div className="bg-gray-50 rounded-lg p-3">
+                      <p className="text-xs text-gray-500">Cancellation Rate</p>
+                      <p className="text-lg font-bold text-gray-800">
+                        {summary.totalScheduled > 0 
+                          ? Math.round(((summary.totalScheduled - summary.totalActual) / summary.totalScheduled) * 100)
+                          : 0}%
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {(summary.totalScheduled - summary.totalActual).toFixed(1)} hrs cancelled
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Therapist Breakdown */}
+                  {summary.therapistTotals.length > 0 && (
+                    <div className="border-t border-gray-100 pt-3">
+                      <p className="text-xs text-gray-500 mb-2">By Therapist</p>
+                      {summary.therapistTotals.map((th, idx) => (
+                        <div key={idx} className="flex justify-between text-sm py-1">
+                          <span className="text-gray-600">{th.name}</span>
+                          <div className="text-right">
+                            <span className="text-gray-800 font-medium">{th.actual.toFixed(1)} hrs</span>
+                            {th.supervision > 0 && th.actual > 0 && (
+                              <span className="text-purple-600 text-xs ml-2">({((th.supervision / th.actual) * 100).toFixed(0)}% sup)</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* BCBA Services */}
+                  {(summary.totalSupervision > 0 || summary.totalParentTraining > 0) && (
+                    <div className="border-t border-gray-100 pt-3">
+                      <p className="text-xs text-gray-500 mb-2">BCBA Services</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div className="bg-purple-50 rounded p-2">
+                          <p className="text-xs text-purple-600">Supervision</p>
+                          <p className="text-sm font-bold text-purple-700">
+                            {summary.totalSupervision.toFixed(1)} hrs
+                          </p>
+                          {summary.supervisionTarget > 0 && (
+                            <p className="text-xs text-purple-500">
+                              Target: {summary.supervisionTarget}/mo
+                            </p>
+                          )}
+                        </div>
+                        <div className="bg-amber-50 rounded p-2">
+                          <p className="text-xs text-amber-600">Parent Training</p>
+                          <p className="text-sm font-bold text-amber-700">
+                            {summary.totalParentTraining.toFixed(1)} hrs
+                          </p>
+                          {summary.parentTrainingTarget > 0 && (
+                            <p className="text-xs text-amber-500">
+                              Target: {summary.parentTrainingTarget}/mo
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {summary.totalActual > 0 && summary.totalSupervision > 0 && (
+                        <p className="text-xs text-purple-600 mt-2 text-center">
+                          Supervision ratio: {((summary.totalSupervision / summary.totalActual) * 100).toFixed(1)}%
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// Weekly Verification Modal Component
+function WeeklyVerification({ clients, weekStart, existingRecords, onSave, onCancel }) {
+  // Filter clients that have therapists
+  const clientsWithTherapists = clients.filter(c => c.therapists && c.therapists.length > 0);
+  
+  // Initialize verification data for each client
+  const [verificationData, setVerificationData] = useState(() => {
+    return clientsWithTherapists.map(client => {
+      const existingRecord = existingRecords.find(r => r.clientId === client.id);
+      
+      // Calculate scheduled hours from therapist sessions
+      const therapistHours = client.therapists.map(therapist => {
+        let weeklyMinutes = 0;
+        therapist.sessions?.forEach(session => {
+          const [startH, startM] = session.startTime.split(':').map(Number);
+          const [endH, endM] = session.endTime.split(':').map(Number);
+          weeklyMinutes += (endH * 60 + endM) - (startH * 60 + startM);
+        });
+        const scheduled = weeklyMinutes / 60;
+        
+        // Check for existing data
+        const existingTherapist = existingRecord?.therapistHours?.find(th => th.therapistId === therapist.id);
+        
+        return {
+          therapistId: therapist.id,
+          name: therapist.name,
+          scheduled,
+          actual: existingTherapist?.actual ?? scheduled,
+          hadCancellation: existingTherapist?.hadCancellation ?? false,
+          supervisionHours: existingTherapist?.supervisionHours ?? ''
+        };
+      });
+
+      return {
+        clientId: client.id,
+        client,
+        therapistHours,
+        parentTrainingHours: existingRecord?.parentTrainingHours ?? '',
+        notes: existingRecord?.notes || '',
+        isVerified: !!existingRecord
+      };
+    });
+  });
+
+  const [currentClientIndex, setCurrentClientIndex] = useState(0);
+  const currentData = verificationData[currentClientIndex];
+
+  const updateTherapistHours = (therapistId, field, value) => {
+    setVerificationData(prev => prev.map((item, idx) => {
+      if (idx !== currentClientIndex) return item;
+      
+      return {
+        ...item,
+        therapistHours: item.therapistHours.map(th => {
+          if (th.therapistId !== therapistId) return th;
+          
+          if (field === 'hadCancellation') {
+            return {
+              ...th,
+              hadCancellation: value,
+              actual: value ? th.actual : th.scheduled // Reset to scheduled if no cancellation
+            };
+          }
+          return { ...th, [field]: value };
+        })
+      };
+    }));
+  };
+
+  const updateNotes = (notes) => {
+    setVerificationData(prev => prev.map((item, idx) => 
+      idx === currentClientIndex ? { ...item, notes } : item
+    ));
+  };
+
+  const updateParentTrainingHours = (hours) => {
+    setVerificationData(prev => prev.map((item, idx) => 
+      idx === currentClientIndex ? { ...item, parentTrainingHours: hours } : item
+    ));
+  };
+
+  const markVerified = () => {
+    setVerificationData(prev => prev.map((item, idx) => 
+      idx === currentClientIndex ? { ...item, isVerified: true } : item
+    ));
+    
+    if (currentClientIndex < clientsWithTherapists.length - 1) {
+      setCurrentClientIndex(currentClientIndex + 1);
+    }
+  };
+
+  const handleSaveAll = () => {
+    const records = verificationData.map(data => ({
+      clientId: data.clientId,
+      weekStart,
+      therapistHours: data.therapistHours.map(th => ({
+        ...th,
+        actual: th.actual === '' ? 0 : th.actual,
+        supervisionHours: th.supervisionHours === '' ? 0 : parseFloat(th.supervisionHours) || 0
+      })),
+      parentTrainingHours: data.parentTrainingHours === '' ? 0 : parseFloat(data.parentTrainingHours) || 0,
+      notes: data.notes,
+      verifiedAt: new Date().toISOString()
+    }));
+    onSave(records);
+  };
+
+  const allVerified = verificationData.every(d => d.isVerified);
+  const totalScheduled = currentData?.therapistHours.reduce((sum, th) => sum + th.scheduled, 0) || 0;
+  const totalActual = currentData?.therapistHours.reduce((sum, th) => sum + (parseFloat(th.actual) || 0), 0) || 0;
+  const totalSupervision = currentData?.therapistHours.reduce((sum, th) => sum + (parseFloat(th.supervisionHours) || 0), 0) || 0;
+
+  if (clientsWithTherapists.length === 0) {
+    return (
+      <div className="fixed inset-0 z-[60]">
+        <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
+        <div className="absolute inset-x-4 top-20 bg-white rounded-2xl p-6 max-w-md mx-auto">
+          <h3 className="text-lg font-bold text-gray-800 mb-4">No Clients to Verify</h3>
+          <p className="text-gray-600 mb-4">
+            Add therapists to your clients to start tracking hours.
+          </p>
+          <button
+            onClick={onCancel}
+            className="w-full py-3 bg-indigo-600 text-white rounded-xl font-medium"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="fixed inset-0 z-[60]">
+      <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
+      
+      <div className="absolute inset-0 overflow-y-auto" style={{ paddingBottom: '80px' }}>
+        <div className="min-h-full flex items-start justify-center pt-10 px-4">
+          <div 
+            className="bg-white rounded-2xl w-full max-w-md shadow-xl"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="p-4 border-b border-gray-100">
+              <div className="flex items-center justify-between mb-2">
+                <h3 className="text-lg font-bold text-gray-800">Verify Hours</h3>
+                <button onClick={onCancel} className="text-gray-500 p-1">
+                  <X size={24} />
+                </button>
+              </div>
+              <p className="text-sm text-gray-500">{formatWeekRange(weekStart)}</p>
+              
+              {/* Progress dots */}
+              <div className="flex space-x-2 mt-3">
+                {verificationData.map((data, idx) => (
+                  <button
+                    key={data.clientId}
+                    onClick={() => setCurrentClientIndex(idx)}
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
+                      idx === currentClientIndex
+                        ? 'bg-indigo-600 text-white'
+                        : data.isVerified
+                          ? 'bg-green-100 text-green-700'
+                          : 'bg-gray-100 text-gray-500'
+                    }`}
+                  >
+                    {data.isVerified ? '✓' : getClientInitials(data.client)}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Client Content */}
+            <div className="p-4">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center">
+                  <span className="text-indigo-600 font-bold text-lg">
+                    {getClientInitials(currentData.client)}
+                  </span>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-gray-800">{getClientInitials(currentData.client)}</h4>
+                  <p className="text-sm text-gray-500">{getClientDisplayName(currentData.client)}</p>
+                </div>
+              </div>
+
+              {/* Summary */}
+              <div className="bg-gray-50 rounded-lg p-3 mb-4">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-600">Scheduled:</span>
+                  <span className="font-medium">{totalScheduled.toFixed(1)} hrs</span>
+                </div>
+                <div className="flex justify-between text-sm mt-1">
+                  <span className="text-gray-600">Actual:</span>
+                  <span className={`font-medium ${totalActual < totalScheduled ? 'text-amber-600' : 'text-green-600'}`}>
+                    {totalActual.toFixed(1)} hrs
+                  </span>
+                </div>
+              </div>
+
+              {/* Per-Therapist Verification */}
+              <div className="space-y-4">
+                {currentData.therapistHours.map(th => (
+                  <div key={th.therapistId} className="border border-gray-200 rounded-lg p-3">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium text-gray-800">{th.name}</span>
+                      <span className="text-sm text-gray-500">{th.scheduled.toFixed(1)} hrs scheduled</span>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm text-gray-600 mb-2">
+                          Any cancellations this week?
+                        </label>
+                        <div className="flex space-x-2">
+                          <button
+                            type="button"
+                            onClick={() => updateTherapistHours(th.therapistId, 'hadCancellation', false)}
+                            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              !th.hadCancellation
+                                ? 'bg-green-100 text-green-700 border-2 border-green-300'
+                                : 'bg-gray-100 text-gray-600'
+                            }`}
+                          >
+                            No
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => updateTherapistHours(th.therapistId, 'hadCancellation', true)}
+                            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                              th.hadCancellation
+                                ? 'bg-amber-100 text-amber-700 border-2 border-amber-300'
+                                : 'bg-gray-100 text-gray-600'
+                            }`}
+                          >
+                            Yes
+                          </button>
+                        </div>
+                      </div>
+
+                      {th.hadCancellation && (
+                        <div>
+                          <label className="block text-sm text-gray-600 mb-1">
+                            Actual hours delivered
+                          </label>
+                          <input
+                            type="number"
+                            step="0.5"
+                            min="0"
+                            max={th.scheduled}
+                            value={th.actual}
+                            onChange={e => {
+                              const val = e.target.value;
+                              updateTherapistHours(th.therapistId, 'actual', val === '' ? '' : parseFloat(val));
+                            }}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                          />
+                        </div>
+                      )}
+
+                      {/* Supervision hours for this therapist */}
+                      <div className="pt-2 border-t border-gray-100">
+                        <label className="block text-sm text-gray-600 mb-1">
+                          Supervision hours provided
+                        </label>
+                        <input
+                          type="number"
+                          step="0.25"
+                          min="0"
+                          placeholder="0"
+                          value={th.supervisionHours}
+                          onChange={e => {
+                            const val = e.target.value;
+                            updateTherapistHours(th.therapistId, 'supervisionHours', val === '' ? '' : val);
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* BCBA Services Section */}
+              <div className="mt-4 border border-purple-200 rounded-lg p-4 bg-purple-50">
+                <h4 className="font-medium text-purple-800 mb-3">BCBA Services This Week</h4>
+                
+                {/* Supervision Summary */}
+                <div className="mb-3">
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-purple-700">Total Supervision:</span>
+                    <span className="font-medium text-purple-800">{totalSupervision.toFixed(2)} hrs</span>
+                  </div>
+                  {totalActual > 0 && (
+                    <p className="text-xs text-purple-600">
+                      Supervision ratio: {((totalSupervision / totalActual) * 100).toFixed(1)}% of direct hours
+                    </p>
+                  )}
+                </div>
+
+                {/* Parent Training */}
+                <div>
+                  <label className="block text-sm text-purple-700 mb-1">
+                    Parent Training hours
+                  </label>
+                  <input
+                    type="number"
+                    step="0.25"
+                    min="0"
+                    placeholder="0"
+                    value={currentData.parentTrainingHours}
+                    onChange={e => {
+                      const val = e.target.value;
+                      updateParentTrainingHours(val === '' ? '' : val);
+                    }}
+                    className="w-full px-3 py-2 border border-purple-300 rounded-lg bg-white"
+                  />
+                </div>
+              </div>
+
+              {/* Notes */}
+              <div className="mt-4">
+                <label className="block text-sm text-gray-600 mb-1">Notes (optional)</label>
+                <textarea
+                  value={currentData.notes}
+                  onChange={e => updateNotes(e.target.value)}
+                  placeholder="e.g., Client sick on Tuesday..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                  rows={2}
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="p-4 border-t border-gray-100 space-y-2">
+              {!currentData.isVerified ? (
+                <button
+                  onClick={markVerified}
+                  className="w-full py-3 bg-indigo-600 text-white rounded-xl font-medium"
+                >
+                  {currentClientIndex < clientsWithTherapists.length - 1 
+                    ? 'Confirm & Next Client →' 
+                    : 'Confirm Hours'}
+                </button>
+              ) : (
+                <div className="flex items-center justify-center py-3 bg-green-50 rounded-xl text-green-700">
+                  <CheckSquare size={20} className="mr-2" />
+                  Verified
+                </div>
+              )}
+              
+              {allVerified && (
+                <button
+                  onClick={handleSaveAll}
+                  className="w-full py-3 bg-green-600 text-white rounded-xl font-medium"
+                >
+                  Save All & Close
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Appointment Form Component
+function AppointmentForm({ appointment, initialDate, initialTime, clients, onSave, onDelete, onCancel }) {
+  // Helper to calculate end time (2 hours after start)
+  const calculateEndTime = (startTime) => {
+    const [hours, minutes] = startTime.split(':').map(Number);
+    let endHours = hours + 2;
+    // Cap at 8 PM (20:00)
+    if (endHours > 20) endHours = 20;
+    return `${endHours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  };
+
+  const getInitialStartTime = () => {
+    if (appointment?.startTime) return appointment.startTime;
+    if (initialTime) return initialTime;
+    return '09:00';
+  };
+
+  const getInitialEndTime = () => {
+    if (appointment?.endTime) return appointment.endTime;
+    const startTime = initialTime || '09:00';
+    return calculateEndTime(startTime);
+  };
+
+  const [formData, setFormData] = useState({
+    id: appointment?.id || null,
+    date: appointment?.date || (initialDate ? getDateString(initialDate) : getDateString(new Date())),
+    startTime: getInitialStartTime(),
+    endTime: getInitialEndTime(),
+    type: appointment?.type || 'supervision',
+    clientId: appointment?.clientId || '',
+    therapistId: appointment?.therapistId || '',
+    notes: appointment?.notes || ''
+  });
+
+  // Reset form when appointment prop changes (switching between edit targets)
+  useEffect(() => {
+    const startTime = appointment?.startTime || initialTime || '09:00';
+    const endTime = appointment?.endTime || calculateEndTime(startTime);
+    
+    setFormData({
+      id: appointment?.id || null,
+      date: appointment?.date || (initialDate ? getDateString(initialDate) : getDateString(new Date())),
+      startTime: startTime,
+      endTime: endTime,
+      type: appointment?.type || 'supervision',
+      clientId: appointment?.clientId || '',
+      therapistId: appointment?.therapistId || '',
+      notes: appointment?.notes || ''
+    });
+  }, [appointment, initialDate, initialTime]);
+
+  const selectedClient = clients.find(c => c.id === formData.clientId);
+  const therapists = selectedClient?.therapists || [];
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    // Make sure we're passing the current formData with the id
+    onSave({...formData});
+  };
+
+  // Reset therapist when client changes
+  const handleClientChange = (clientId) => {
+    setFormData({
+      ...formData,
+      clientId,
+      therapistId: ''
+    });
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60]">
+      {/* Backdrop */}
+      <div className="absolute inset-0 bg-black/50" onClick={onCancel} />
+      
+      {/* Scrollable area - has padding for bottom nav */}
+      <div 
+        className="absolute inset-0 overflow-y-auto"
+        style={{ paddingBottom: '80px' }}
+      >
+        {/* Spacer to push modal down */}
+        <div className="h-16" onClick={onCancel} />
+        
+        {/* Modal */}
+        <div 
+          className="bg-white rounded-t-2xl min-h-[400px]"
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-100 bg-white sticky top-0 rounded-t-2xl">
+            <h3 className="text-lg font-bold text-gray-800">
+              {appointment?.id ? 'Edit Appointment' : 'New Appointment'}
+            </h3>
+            <button type="button" onClick={onCancel} className="text-gray-500 p-1">
+              <X size={24} />
+            </button>
+          </div>
+
+          {/* Form Content */}
+          <div className="p-4 space-y-4">
+            {/* Date */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Date *</label>
+              <input
+                type="date"
+                required
+                value={formData.date}
+                onChange={e => setFormData({...formData, date: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+
+            {/* Time */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Start Time *</label>
+                <input
+                  type="time"
+                  required
+                  value={formData.startTime}
+                  onChange={e => setFormData({...formData, startTime: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">End Time *</label>
+                <input
+                  type="time"
+                  required
+                  value={formData.endTime}
+                  onChange={e => setFormData({...formData, endTime: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+
+            {/* Session Type */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Session Type *</label>
+              <select
+                required
+                value={formData.type}
+                onChange={e => setFormData({...formData, type: e.target.value})}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              >
+                {Object.entries(SESSION_TYPES).map(([key, config]) => (
+                  <option key={key} value={key}>{config.label}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Client */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Client</label>
+              <select
+                value={formData.clientId}
+                onChange={e => handleClientChange(e.target.value)}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+              >
+                <option value="">-- Select Client --</option>
+                {clients.map(client => (
+                  <option key={client.id} value={client.id}>
+                    {getClientInitials(client)} - {getClientDisplayName(client)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Therapist (only if client selected) */}
+            {selectedClient && therapists.length > 0 && (
+              <div>
+                <label className="block text-sm text-gray-600 mb-1">Therapist (for supervision tracking)</label>
+                <select
+                  value={formData.therapistId}
+                  onChange={e => setFormData({...formData, therapistId: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="">-- Select Therapist --</option>
+                  {therapists.map(therapist => (
+                    <option key={therapist.id} value={therapist.id}>
+                      {therapist.name} ({therapist.credential})
+                    </option>
+                  ))}
+                </select>
+                <p className="text-xs text-gray-400 mt-1">
+                  Helps track which therapists you've supervised
+                </p>
+              </div>
+            )}
+
+            {/* Notes */}
+            <div>
+              <label className="block text-sm text-gray-600 mb-1">Notes</label>
+              <textarea
+                value={formData.notes}
+                onChange={e => setFormData({...formData, notes: e.target.value})}
+                rows={2}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                placeholder="Session focus, goals, etc."
+              />
+            </div>
+
+            {/* Buttons */}
+            <div className="flex space-x-3 pt-2 pb-2">
+              {appointment?.id && onDelete && (
+                <button
+                  type="button"
+                  onClick={() => onDelete()}
+                  className="px-4 py-3 border border-red-300 text-red-600 rounded-xl font-medium hover:bg-red-50"
+                >
+                  <Trash2 size={18} />
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={onCancel}
+                className="flex-1 py-3 border border-gray-300 text-gray-700 rounded-xl font-medium hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmit}
+                className="flex-1 py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700"
+              >
+                {appointment?.id ? 'Update' : 'Add Appointment'}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Monthly Report Component
+function MonthlyReport({ clients, appointments, weeklyRecords, onClose }) {
+  const now = new Date();
+  const [selectedMonth, setSelectedMonth] = useState(
+    `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+  );
+
+  // Generate last 6 months for dropdown
+  const monthOptions = [];
+  for (let i = 0; i < 6; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    monthOptions.push({
+      key,
+      label: d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    });
+  }
+
+  // Get clients with therapists
+  const activeClients = clients.filter(c => c.therapists && c.therapists.length > 0);
+
+  // Calculate report data for selected month
+  const reportData = activeClients.map(client => {
+    const clientRecords = weeklyRecords.filter(r => 
+      r.clientId === client.id && getMonthKey(r.weekStart) === selectedMonth
+    );
+    
+    let totalDirectHours = 0;
+    let totalSupervision = 0;
+    let totalParentTraining = 0;
+    const therapistData = {};
+    
+    clientRecords.forEach(record => {
+      totalParentTraining += parseFloat(record.parentTrainingHours) || 0;
+      
+      record.therapistHours?.forEach(th => {
+        totalDirectHours += th.actual || 0;
+        totalSupervision += parseFloat(th.supervisionHours) || 0;
+        
+        if (!therapistData[th.therapistId]) {
+          therapistData[th.therapistId] = { name: th.name, direct: 0, supervision: 0 };
+        }
+        therapistData[th.therapistId].direct += th.actual || 0;
+        therapistData[th.therapistId].supervision += parseFloat(th.supervisionHours) || 0;
+      });
+    });
+
+    const supervisionPercent = totalDirectHours > 0 ? (totalSupervision / totalDirectHours) * 100 : 0;
+
+    return {
+      client,
+      totalDirectHours,
+      totalSupervision,
+      totalParentTraining,
+      supervisionPercent,
+      therapists: Object.values(therapistData),
+      weeksVerified: clientRecords.length
+    };
+  });
+
+  // Totals
+  const totals = reportData.reduce((acc, data) => ({
+    directHours: acc.directHours + data.totalDirectHours,
+    supervision: acc.supervision + data.totalSupervision,
+    parentTraining: acc.parentTraining + data.totalParentTraining
+  }), { directHours: 0, supervision: 0, parentTraining: 0 });
+
+  const handlePrint = () => {
+    window.print();
+  };
+
+  return (
+    <div className="fixed inset-0 z-[70]">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      
+      <div className="absolute inset-0 overflow-y-auto" style={{ paddingBottom: '80px' }}>
+        <div className="min-h-full flex items-start justify-center py-4 px-4">
+          <div 
+            className="bg-white rounded-xl w-full max-w-2xl shadow-xl print:shadow-none print:rounded-none"
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-gray-100 print:hidden">
+              <h2 className="text-lg font-bold text-gray-800">Monthly Supervision Report</h2>
+              <button onClick={onClose} className="text-gray-500 p-1">
+                <X size={24} />
+              </button>
+            </div>
+
+            {/* Controls - hide on print */}
+            <div className="p-4 border-b border-gray-100 print:hidden">
+              <div className="flex items-center space-x-4">
+                <div className="flex-1">
+                  <label className="block text-sm text-gray-600 mb-1">Select Month</label>
+                  <select
+                    value={selectedMonth}
+                    onChange={e => setSelectedMonth(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg"
+                  >
+                    {monthOptions.map(opt => (
+                      <option key={opt.key} value={opt.key}>{opt.label}</option>
+                    ))}
+                  </select>
+                </div>
+                <button
+                  onClick={handlePrint}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg font-medium flex items-center mt-6"
+                >
+                  <FileDown size={18} className="mr-2" />
+                  Print/Save
+                </button>
+              </div>
+            </div>
+
+            {/* Report Content */}
+            <div className="p-6" id="report-content">
+              {/* Report Header - visible on print */}
+              <div className="mb-6 text-center print:block hidden">
+                <h1 className="text-xl font-bold text-gray-800">Monthly Supervision Report</h1>
+                <p className="text-gray-600">{formatMonth(selectedMonth)}</p>
+                <p className="text-sm text-gray-500 mt-1">Generated {new Date().toLocaleDateString()}</p>
+              </div>
+
+              {/* Visible month header */}
+              <h3 className="text-lg font-semibold text-gray-800 mb-4 print:hidden">
+                {formatMonth(selectedMonth)}
+              </h3>
+
+              {/* Summary Totals */}
+              <div className="bg-gray-50 rounded-lg p-4 mb-6">
+                <h4 className="font-semibold text-gray-700 mb-3">Summary</h4>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <p className="text-2xl font-bold text-emerald-600">{totals.directHours.toFixed(1)}</p>
+                    <p className="text-xs text-gray-500">Direct Hours</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-purple-600">{totals.supervision.toFixed(1)}</p>
+                    <p className="text-xs text-gray-500">Supervision Hours</p>
+                  </div>
+                  <div>
+                    <p className="text-2xl font-bold text-amber-600">{totals.parentTraining.toFixed(1)}</p>
+                    <p className="text-xs text-gray-500">Parent Training</p>
+                  </div>
+                </div>
+                {totals.directHours > 0 && (
+                  <p className="text-center text-sm text-gray-600 mt-3">
+                    Overall Supervision Ratio: <strong>{((totals.supervision / totals.directHours) * 100).toFixed(1)}%</strong>
+                  </p>
+                )}
+              </div>
+
+              {/* Per-Client Breakdown */}
+              <h4 className="font-semibold text-gray-700 mb-3">Client Breakdown</h4>
+              
+              {reportData.length === 0 ? (
+                <p className="text-gray-500 text-center py-8">No data for this month</p>
+              ) : (
+                <div className="space-y-4">
+                  {reportData.map(data => (
+                    <div key={data.client.id} className="border border-gray-200 rounded-lg p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <h5 className="font-semibold text-gray-800">
+                          {getClientInitials(data.client)}
+                        </h5>
+                        <span className="text-xs text-gray-500">
+                          {data.weeksVerified} weeks verified
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-4 gap-2 text-sm mb-3">
+                        <div className="bg-emerald-50 rounded p-2 text-center">
+                          <p className="font-bold text-emerald-700">{data.totalDirectHours.toFixed(1)}</p>
+                          <p className="text-xs text-emerald-600">Direct</p>
+                        </div>
+                        <div className="bg-purple-50 rounded p-2 text-center">
+                          <p className="font-bold text-purple-700">{data.totalSupervision.toFixed(1)}</p>
+                          <p className="text-xs text-purple-600">Supervision</p>
+                        </div>
+                        <div className="bg-amber-50 rounded p-2 text-center">
+                          <p className="font-bold text-amber-700">{data.totalParentTraining.toFixed(1)}</p>
+                          <p className="text-xs text-amber-600">Parent Trng</p>
+                        </div>
+                        <div className="bg-indigo-50 rounded p-2 text-center">
+                          <p className="font-bold text-indigo-700">{data.supervisionPercent.toFixed(1)}%</p>
+                          <p className="text-xs text-indigo-600">Sup. Ratio</p>
+                        </div>
+                      </div>
+
+                      {/* Per-therapist */}
+                      {data.therapists.length > 0 && (
+                        <div className="border-t border-gray-100 pt-2">
+                          <p className="text-xs text-gray-500 mb-1">By Therapist:</p>
+                          <div className="space-y-1">
+                            {data.therapists.map((th, idx) => (
+                              <div key={idx} className="flex justify-between text-xs">
+                                <span className="text-gray-600">{th.name}</span>
+                                <span className="text-gray-800">
+                                  {th.direct.toFixed(1)} hrs direct, {th.supervision.toFixed(1)} hrs sup
+                                  {th.direct > 0 && (
+                                    <span className="text-purple-600 ml-1">
+                                      ({((th.supervision / th.direct) * 100).toFixed(0)}%)
+                                    </span>
+                                  )}
+                                </span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Footer */}
+              <div className="mt-6 pt-4 border-t border-gray-200 text-center text-xs text-gray-400">
+                <p>BCBA Caseload Management • Supervision Compliance Report</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Settings and Backup Component
+function SettingsBackup({ clients, appointments, weeklyRecords, onImport, onClose }) {
+  const [importError, setImportError] = useState(null);
+  const [importSuccess, setImportSuccess] = useState(false);
+
+  const handleExport = () => {
+    const data = {
+      exportDate: new Date().toISOString(),
+      version: '13',
+      clients,
+      appointments,
+      weeklyRecords
+    };
+    
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `bcba-caseload-backup-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImport = (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+
+    setImportError(null);
+    setImportSuccess(false);
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const data = JSON.parse(e.target.result);
+        
+        // Validate the data structure
+        if (!data.clients && !data.appointments && !data.weeklyRecords) {
+          throw new Error('Invalid backup file format');
+        }
+
+        // Confirm before importing
+        if (window.confirm(`Import backup from ${data.exportDate ? new Date(data.exportDate).toLocaleDateString() : 'unknown date'}?\n\nThis will replace your current data with:\n- ${data.clients?.length || 0} clients\n- ${data.appointments?.length || 0} appointments\n- ${data.weeklyRecords?.length || 0} weekly records`)) {
+          onImport(data);
+          setImportSuccess(true);
+        }
+      } catch (err) {
+        setImportError('Failed to read backup file. Make sure it\'s a valid BCBA Caseload backup.');
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const handleClearData = () => {
+    if (window.confirm('⚠️ Are you sure you want to clear ALL data?\n\nThis will delete all clients, appointments, and records.\n\nThis cannot be undone!')) {
+      if (window.confirm('Really delete everything? Consider exporting a backup first.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(APPOINTMENTS_KEY);
+        localStorage.removeItem(WEEKLY_RECORDS_KEY);
+        window.location.reload();
+      }
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[70]">
+      <div className="absolute inset-0 bg-black/50" onClick={onClose} />
+      
+      <div className="absolute inset-x-4 top-20 bottom-24 flex items-start justify-center overflow-y-auto">
+        <div 
+          className="bg-white rounded-xl w-full max-w-md shadow-xl"
+          onClick={e => e.stopPropagation()}
+        >
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-gray-100">
+            <h2 className="text-lg font-bold text-gray-800">Settings & Backup</h2>
+            <button onClick={onClose} className="text-gray-500 p-1">
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="p-4 space-y-6">
+            {/* Current Data Summary */}
+            <div className="bg-gray-50 rounded-lg p-4">
+              <h3 className="font-semibold text-gray-700 mb-2">Current Data</h3>
+              <div className="grid grid-cols-3 gap-4 text-center text-sm">
+                <div>
+                  <p className="text-2xl font-bold text-indigo-600">{clients.length}</p>
+                  <p className="text-gray-500">Clients</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-emerald-600">{appointments.length}</p>
+                  <p className="text-gray-500">Appointments</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-purple-600">{weeklyRecords.length}</p>
+                  <p className="text-gray-500">Week Records</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Export */}
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-2">Export Backup</h3>
+              <p className="text-sm text-gray-500 mb-3">
+                Download a backup of all your data. Do this regularly to protect your records.
+              </p>
+              <button
+                onClick={handleExport}
+                className="w-full py-3 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 flex items-center justify-center"
+              >
+                <FileDown size={20} className="mr-2" />
+                Download Backup
+              </button>
+            </div>
+
+            {/* Import */}
+            <div>
+              <h3 className="font-semibold text-gray-700 mb-2">Import Backup</h3>
+              <p className="text-sm text-gray-500 mb-3">
+                Restore from a previous backup file. This will replace your current data.
+              </p>
+              
+              {importError && (
+                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+                  {importError}
+                </div>
+              )}
+              
+              {importSuccess && (
+                <div className="mb-3 p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm">
+                  ✓ Backup imported successfully!
+                </div>
+              )}
+              
+              <label className="w-full py-3 border-2 border-dashed border-gray-300 text-gray-600 rounded-xl font-medium hover:border-indigo-400 hover:text-indigo-600 flex items-center justify-center cursor-pointer">
+                <input
+                  type="file"
+                  accept=".json"
+                  onChange={handleImport}
+                  className="hidden"
+                />
+                <FileText size={20} className="mr-2" />
+                Select Backup File
+              </label>
+            </div>
+
+            {/* Danger Zone */}
+            <div className="pt-4 border-t border-gray-200">
+              <h3 className="font-semibold text-red-600 mb-2">Danger Zone</h3>
+              <button
+                onClick={handleClearData}
+                className="w-full py-3 border border-red-300 text-red-600 rounded-xl font-medium hover:bg-red-50"
+              >
+                Clear All Data
+              </button>
+            </div>
+
+            {/* Info */}
+            <div className="text-xs text-gray-400 text-center pt-2">
+              <p>BCBA Caseload Manager v13</p>
+              <p>Data stored locally on this device</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Render the app
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<BCBACaseloadApp />);
+  </script>
+</body>
+</html>
